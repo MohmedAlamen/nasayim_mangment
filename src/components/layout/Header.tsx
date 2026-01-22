@@ -1,15 +1,19 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Sun, Moon, Globe, Bell, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Sun, Moon, Globe, Bell, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface HeaderProps {
   sidebarCollapsed: boolean;
@@ -18,6 +22,26 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
   const { language, setLanguage, t, dir } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { profile, role, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
+  const getRoleBadge = () => {
+    switch (role) {
+      case 'admin':
+        return <Badge className="bg-primary/20 text-primary text-xs">{dir === 'rtl' ? 'مدير' : 'Admin'}</Badge>;
+      case 'manager':
+        return <Badge className="bg-accent/20 text-accent-foreground text-xs">{dir === 'rtl' ? 'مشرف' : 'Manager'}</Badge>;
+      case 'technician':
+        return <Badge className="bg-secondary text-secondary-foreground text-xs">{dir === 'rtl' ? 'فني' : 'Technician'}</Badge>;
+      default:
+        return null;
+    }
+  };
 
   return (
     <header 
@@ -31,7 +55,9 @@ const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
       <div className="h-full px-6 flex items-center justify-between">
         {/* Welcome Message */}
         <div>
-          <h2 className="text-lg font-semibold text-foreground">{t('welcomeBack')} 👋</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            {t('welcomeBack')}{profile ? `, ${profile.full_name}` : ''} 👋
+          </h2>
           <p className="text-sm text-muted-foreground">{t('todayOverview')}</p>
         </div>
 
@@ -89,9 +115,18 @@ const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}>
-              <DropdownMenuItem>{t('settings')}</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">
+            <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="w-56">
+              <div className="px-2 py-2 border-b border-border">
+                <p className="font-medium text-sm">{profile?.full_name || 'User'}</p>
+                <div className="mt-1">{getRoleBadge()}</div>
+              </div>
+              <DropdownMenuItem onClick={() => navigate('/settings')}>
+                <Settings className="w-4 h-4 me-2" />
+                {t('settings')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                <LogOut className="w-4 h-4 me-2" />
                 {dir === 'rtl' ? 'تسجيل الخروج' : 'Logout'}
               </DropdownMenuItem>
             </DropdownMenuContent>
