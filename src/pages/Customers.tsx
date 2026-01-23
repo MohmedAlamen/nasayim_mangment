@@ -1,175 +1,123 @@
 import React, { useState } from 'react';
+import { Plus, Search, Mail, Phone, MapPin, MoreVertical, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Search, Plus, Filter, MoreHorizontal, Phone, Mail, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
+import { useCustomers, useDeleteCustomer, Customer } from '@/hooks/useCustomers';
+import CustomerDialog from '@/components/customers/CustomerDialog';
+import DeleteDialog from '@/components/shared/DeleteDialog';
 
 const Customers: React.FC = () => {
   const { t, dir } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
-  const customers = [
-    {
-      id: 1,
-      name: dir === 'rtl' ? 'أحمد محمد الشمري' : 'Ahmed Mohammed Al-Shamri',
-      email: 'ahmed@example.com',
-      phone: '+966 50 123 4567',
-      location: dir === 'rtl' ? 'الرياض، حي النخيل' : 'Riyadh, Al Nakhil',
-      totalServices: 8,
-      lastService: dir === 'rtl' ? 'منذ 3 أيام' : '3 days ago',
-      status: 'active',
-    },
-    {
-      id: 2,
-      name: dir === 'rtl' ? 'سارة العلي' : 'Sara Al Ali',
-      email: 'sara@example.com',
-      phone: '+966 55 987 6543',
-      location: dir === 'rtl' ? 'جدة، حي الروضة' : 'Jeddah, Al Rawdah',
-      totalServices: 5,
-      lastService: dir === 'rtl' ? 'منذ أسبوع' : '1 week ago',
-      status: 'active',
-    },
-    {
-      id: 3,
-      name: dir === 'rtl' ? 'محمد السعيد' : 'Mohammed Al Said',
-      email: 'mohammed@example.com',
-      phone: '+966 54 456 7890',
-      location: dir === 'rtl' ? 'الدمام، حي الفيصلية' : 'Dammam, Al Faisaliah',
-      totalServices: 12,
-      lastService: dir === 'rtl' ? 'اليوم' : 'Today',
-      status: 'vip',
-    },
-    {
-      id: 4,
-      name: dir === 'rtl' ? 'فاطمة الحربي' : 'Fatima Al Harbi',
-      email: 'fatima@example.com',
-      phone: '+966 56 111 2222',
-      location: dir === 'rtl' ? 'الرياض، حي العليا' : 'Riyadh, Al Olaya',
-      totalServices: 3,
-      lastService: dir === 'rtl' ? 'منذ شهر' : '1 month ago',
-      status: 'inactive',
-    },
-  ];
+  const { data: customers, isLoading } = useCustomers(searchTerm);
+  const deleteCustomer = useDeleteCustomer();
 
-  const statusStyles = {
+  const statusStyles: Record<string, string> = {
     active: 'bg-success/10 text-success border-success/20',
+    inactive: 'bg-muted text-muted-foreground border-muted',
     vip: 'bg-accent/10 text-accent border-accent/20',
-    inactive: 'bg-muted text-muted-foreground border-border',
   };
 
-  const statusLabels = {
+  const statusLabels: Record<string, string> = {
     active: dir === 'rtl' ? 'نشط' : 'Active',
-    vip: dir === 'rtl' ? 'عميل مميز' : 'VIP',
     inactive: dir === 'rtl' ? 'غير نشط' : 'Inactive',
+    vip: 'VIP',
+  };
+
+  const handleEdit = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (selectedCustomer) {
+      await deleteCustomer.mutateAsync(selectedCustomer.id);
+      setDeleteDialogOpen(false);
+      setSelectedCustomer(null);
+    }
+  };
+
+  const handleAdd = () => {
+    setSelectedCustomer(null);
+    setDialogOpen(true);
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6" dir={dir}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">{t('customers')}</h1>
-          <p className="text-muted-foreground">
-            {dir === 'rtl' ? 'إدارة وعرض جميع العملاء' : 'Manage and view all customers'}
-          </p>
+          <h1 className="text-2xl font-bold text-foreground">{t('customers')}</h1>
+          <p className="text-muted-foreground">{dir === 'rtl' ? 'إدارة قاعدة بيانات العملاء' : 'Manage your customer database'}</p>
         </div>
-        <Button className="gradient-primary text-primary-foreground shadow-glow">
-          <Plus className="w-4 h-4 me-2" />
-          {t('addNew')}
+        <Button onClick={handleAdd} className="gap-2">
+          <Plus className="w-4 h-4" />
+          {dir === 'rtl' ? 'إضافة عميل' : 'Add Customer'}
         </Button>
       </div>
 
-      {/* Search & Filter */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder={t('search')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="ps-10"
-          />
+      <div className="relative max-w-md">
+        <Search className="absolute top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground start-3" />
+        <Input placeholder={dir === 'rtl' ? 'البحث...' : 'Search...'} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="ps-10" />
+      </div>
+
+      {isLoading && <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}
+
+      {!isLoading && customers?.length === 0 && (
+        <Card><CardContent className="py-12 text-center"><p className="text-muted-foreground">{dir === 'rtl' ? 'لا يوجد عملاء' : 'No customers yet'}</p></CardContent></Card>
+      )}
+
+      {!isLoading && customers && customers.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {customers.map((customer) => (
+            <Card key={customer.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-bold text-lg">{customer.name.charAt(0)}</div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{customer.name}</h3>
+                      <Badge variant="outline" className={statusStyles[customer.status || 'active']}>{statusLabels[customer.status || 'active']}</Badge>
+                    </div>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                    <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}>
+                      <DropdownMenuItem onClick={() => handleEdit(customer)}>{dir === 'rtl' ? 'تعديل' : 'Edit'}</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDelete(customer)} className="text-destructive">{dir === 'rtl' ? 'حذف' : 'Delete'}</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  {customer.email && <div className="flex items-center gap-2"><Mail className="w-4 h-4" /><span className="truncate">{customer.email}</span></div>}
+                  <div className="flex items-center gap-2"><Phone className="w-4 h-4" /><span>{customer.phone}</span></div>
+                  <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /><span>{customer.city}</span></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-        <Button variant="outline">
-          <Filter className="w-4 h-4 me-2" />
-          {t('filter')}
-        </Button>
-        <Button variant="outline">
-          {t('export')}
-        </Button>
-      </div>
+      )}
 
-      {/* Customers Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {customers.map((customer) => (
-          <div 
-            key={customer.id}
-            className="bg-card p-5 rounded-2xl border border-border hover:shadow-lg transition-all duration-200 animate-fade-in"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center text-primary-foreground font-bold text-lg">
-                  {customer.name.charAt(0)}
-                </div>
-                <div>
-                  <h3 className="font-semibold">{customer.name}</h3>
-                  <span className={cn(
-                    "px-2 py-0.5 text-xs font-medium rounded-full border",
-                    statusStyles[customer.status as keyof typeof statusStyles]
-                  )}>
-                    {statusLabels[customer.status as keyof typeof statusLabels]}
-                  </span>
-                </div>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}>
-                  <DropdownMenuItem>{t('edit')}</DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">{t('delete')}</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="w-4 h-4" />
-                <span>{customer.email}</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Phone className="w-4 h-4" />
-                <span dir="ltr">{customer.phone}</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="w-4 h-4" />
-                <span>{customer.location}</span>
-              </div>
-            </div>
-
-            <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-sm">
-              <div>
-                <span className="text-muted-foreground">
-                  {dir === 'rtl' ? 'عدد الخدمات:' : 'Services:'}
-                </span>
-                <span className="font-semibold ms-1">{customer.totalServices}</span>
-              </div>
-              <div className="text-muted-foreground">
-                {customer.lastService}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <CustomerDialog open={dialogOpen} onOpenChange={setDialogOpen} customer={selectedCustomer} />
+      <DeleteDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={confirmDelete} isLoading={deleteCustomer.isPending} />
     </div>
   );
 };
