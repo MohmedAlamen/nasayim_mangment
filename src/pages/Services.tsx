@@ -1,169 +1,59 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Plus, MoreVertical, Clock, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Plus, Bug, Rat, Skull, Wind, Sparkles, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useServices, useDeleteService, Service } from '@/hooks/useServices';
+import ServiceDialog from '@/components/services/ServiceDialog';
+import DeleteDialog from '@/components/shared/DeleteDialog';
 
 const Services: React.FC = () => {
   const { t, dir } = useLanguage();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const { data: services, isLoading } = useServices();
+  const deleteService = useDeleteService();
 
-  const services = [
-    {
-      id: 1,
-      name: t('pestControl'),
-      nameAr: 'مكافحة الحشرات',
-      nameEn: 'Pest Control',
-      description: dir === 'rtl' 
-        ? 'مكافحة شاملة للحشرات المنزلية والطائرة' 
-        : 'Comprehensive control of household and flying insects',
-      icon: Bug,
-      price: 350,
-      duration: dir === 'rtl' ? '2-3 ساعات' : '2-3 hours',
-      color: 'hsl(152 60% 32%)',
-      bookings: 156,
-    },
-    {
-      id: 2,
-      name: t('rodentControl'),
-      nameAr: 'مكافحة القوارض',
-      nameEn: 'Rodent Control',
-      description: dir === 'rtl' 
-        ? 'التخلص من الفئران والجرذان بطرق آمنة' 
-        : 'Safe elimination of mice and rats',
-      icon: Rat,
-      price: 450,
-      duration: dir === 'rtl' ? '3-4 ساعات' : '3-4 hours',
-      color: 'hsl(38 92% 50%)',
-      bookings: 89,
-    },
-    {
-      id: 3,
-      name: t('termiteControl'),
-      nameAr: 'مكافحة النمل الأبيض',
-      nameEn: 'Termite Control',
-      description: dir === 'rtl' 
-        ? 'معالجة ووقاية من النمل الأبيض للمنازل والمباني' 
-        : 'Treatment and prevention of termites in homes and buildings',
-      icon: Skull,
-      price: 800,
-      duration: dir === 'rtl' ? '4-6 ساعات' : '4-6 hours',
-      color: 'hsl(0 70% 50%)',
-      bookings: 45,
-    },
-    {
-      id: 4,
-      name: t('fumigation'),
-      nameAr: 'التبخير',
-      nameEn: 'Fumigation',
-      description: dir === 'rtl' 
-        ? 'تبخير شامل للمستودعات والمنشآت الكبيرة' 
-        : 'Complete fumigation for warehouses and large facilities',
-      icon: Wind,
-      price: 1200,
-      duration: dir === 'rtl' ? '6-8 ساعات' : '6-8 hours',
-      color: 'hsl(200 80% 50%)',
-      bookings: 23,
-    },
-    {
-      id: 5,
-      name: t('disinfection'),
-      nameAr: 'التعقيم',
-      nameEn: 'Disinfection',
-      description: dir === 'rtl' 
-        ? 'تعقيم وتطهير المنازل والمكاتب ضد الفيروسات والبكتيريا' 
-        : 'Disinfection of homes and offices against viruses and bacteria',
-      icon: Sparkles,
-      price: 250,
-      duration: dir === 'rtl' ? '1-2 ساعات' : '1-2 hours',
-      color: 'hsl(280 70% 50%)',
-      bookings: 112,
-    },
-  ];
+  const handleEdit = (service: Service) => { setSelectedService(service); setDialogOpen(true); };
+  const handleDelete = (service: Service) => { setSelectedService(service); setDeleteDialogOpen(true); };
+  const confirmDelete = async () => { if (selectedService) { await deleteService.mutateAsync(selectedService.id); setDeleteDialogOpen(false); setSelectedService(null); } };
+  const handleAdd = () => { setSelectedService(null); setDialogOpen(true); };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">{t('services')}</h1>
-          <p className="text-muted-foreground">
-            {dir === 'rtl' ? 'إدارة خدمات الشركة والأسعار' : 'Manage company services and pricing'}
-          </p>
-        </div>
-        <Button className="gradient-primary text-primary-foreground shadow-glow">
-          <Plus className="w-4 h-4 me-2" />
-          {dir === 'rtl' ? 'إضافة خدمة' : 'Add Service'}
-        </Button>
+    <div className="space-y-6" dir={dir}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div><h1 className="text-2xl font-bold text-foreground">{t('services')}</h1><p className="text-muted-foreground">{dir === 'rtl' ? 'إدارة الخدمات والأسعار' : 'Manage services and pricing'}</p></div>
+        <Button onClick={handleAdd} className="gap-2"><Plus className="w-4 h-4" />{dir === 'rtl' ? 'إضافة خدمة' : 'Add Service'}</Button>
       </div>
 
-      {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {services.map((service) => (
-          <div 
-            key={service.id}
-            className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-200 group"
-          >
-            {/* Service Header */}
-            <div 
-              className="p-6 text-white"
-              style={{ backgroundColor: service.color }}
-            >
-              <div className="flex items-start justify-between">
-                <div className="p-3 bg-white/20 rounded-xl">
-                  <service.icon className="w-8 h-8" />
+      {isLoading && <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}
+      {!isLoading && services?.length === 0 && <Card><CardContent className="py-12 text-center"><p className="text-muted-foreground">{dir === 'rtl' ? 'لا توجد خدمات' : 'No services yet'}</p></CardContent></Card>}
+
+      {!isLoading && services && services.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {services.map((service) => (
+            <Card key={service.id} className="hover:shadow-md transition-shadow overflow-hidden">
+              <div className="h-2" style={{ backgroundColor: service.color || '#2d8a5f' }} />
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white" style={{ backgroundColor: service.color || '#2d8a5f' }}><span className="text-xl font-bold">{(dir === 'rtl' ? service.name_ar : service.name_en).charAt(0)}</span></div>
+                    <div><h3 className="font-semibold text-foreground">{dir === 'rtl' ? service.name_ar : service.name_en}</h3><Badge variant={service.is_active ? 'default' : 'secondary'}>{service.is_active ? (dir === 'rtl' ? 'نشط' : 'Active') : (dir === 'rtl' ? 'غير نشط' : 'Inactive')}</Badge></div>
+                  </div>
+                  <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}><DropdownMenuItem onClick={() => handleEdit(service)}>{dir === 'rtl' ? 'تعديل' : 'Edit'}</DropdownMenuItem><DropdownMenuItem onClick={() => handleDelete(service)} className="text-destructive">{dir === 'rtl' ? 'حذف' : 'Delete'}</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-                      <MoreHorizontal className="w-5 h-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}>
-                    <DropdownMenuItem>{t('edit')}</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">{t('delete')}</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              <h3 className="mt-4 text-xl font-bold">{service.name}</h3>
-              <p className="mt-1 text-white/80 text-sm">{service.description}</p>
-            </div>
-
-            {/* Service Details */}
-            <div className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">
-                  {dir === 'rtl' ? 'السعر' : 'Price'}
-                </span>
-                <span className="text-lg font-bold text-primary">
-                  {t('currency')} {service.price}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">
-                  {dir === 'rtl' ? 'المدة' : 'Duration'}
-                </span>
-                <span className="font-medium">{service.duration}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">
-                  {dir === 'rtl' ? 'الحجوزات' : 'Bookings'}
-                </span>
-                <span className="font-medium">{service.bookings}</span>
-              </div>
-
-              <Button variant="outline" className="w-full mt-2">
-                {dir === 'rtl' ? 'عرض التفاصيل' : 'View Details'}
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{dir === 'rtl' ? service.description_ar : service.description_en}</p>
+                <div className="flex items-center justify-between pt-3 border-t"><div className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="w-4 h-4" /><span>{service.duration || '-'}</span></div><div className="text-lg font-bold text-primary">{service.price} {dir === 'rtl' ? 'ر.س' : 'SAR'}</div></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+      <ServiceDialog open={dialogOpen} onOpenChange={setDialogOpen} service={selectedService} />
+      <DeleteDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={confirmDelete} isLoading={deleteService.isPending} />
     </div>
   );
 };
