@@ -1,77 +1,89 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import StatCard from '@/components/dashboard/StatCard';
-import AppointmentCard from '@/components/dashboard/AppointmentCard';
 import QuickActions from '@/components/dashboard/QuickActions';
 import RevenueChart from '@/components/dashboard/RevenueChart';
 import ServicesChart from '@/components/dashboard/ServicesChart';
-import { Users, Wrench, Calendar, DollarSign, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Users, Wrench, Calendar, DollarSign, ArrowRight, ArrowLeft, Clock, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { useDashboardStats, useTodayAppointments } from '@/hooks/useDashboardStats';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
+import AppointmentDialog from '@/components/appointments/AppointmentDialog';
+import CustomerDialog from '@/components/customers/CustomerDialog';
+import InvoiceDialog from '@/components/invoices/InvoiceDialog';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
 
 const Dashboard: React.FC = () => {
   const { t, dir } = useLanguage();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  // Dialog states
+  const [appointmentDialogOpen, setAppointmentDialogOpen] = useState(false);
+  const [customerDialogOpen, setCustomerDialogOpen] = useState(false);
+  const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
 
-  const stats = [
+  // Enable realtime notifications
+  useRealtimeNotifications();
+
+  // Fetch real data
+  const { data: stats, isLoading: statsLoading } = useDashboardStats();
+  const { data: todayAppointments, isLoading: appointmentsLoading } = useTodayAppointments();
+
+  // Handle URL params for opening dialogs
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'new-appointment') setAppointmentDialogOpen(true);
+    if (action === 'new-customer') setCustomerDialogOpen(true);
+    if (action === 'new-invoice') setInvoiceDialogOpen(true);
+  }, [searchParams]);
+
+  const statCards = [
     { 
       title: t('totalCustomers'), 
-      value: '1,234', 
+      value: statsLoading ? '...' : stats?.totalCustomers.toLocaleString() || '0', 
       icon: Users, 
-      trend: { value: 12, isPositive: true },
       variant: 'default' as const
     },
     { 
       title: t('activeServices'), 
-      value: '89', 
+      value: statsLoading ? '...' : stats?.activeServices.toString() || '0', 
       icon: Wrench, 
-      trend: { value: 8, isPositive: true },
       variant: 'primary' as const
     },
     { 
       title: t('pendingAppointments'), 
-      value: '23', 
+      value: statsLoading ? '...' : stats?.pendingAppointments.toString() || '0', 
       icon: Calendar, 
-      trend: { value: 5, isPositive: false },
       variant: 'accent' as const
     },
     { 
       title: t('monthlyRevenue'), 
-      value: `${t('currency')} 45,678`, 
+      value: statsLoading ? '...' : `${t('currency')} ${stats?.monthlyRevenue.toLocaleString() || '0'}`, 
       icon: DollarSign, 
-      trend: { value: 15, isPositive: true },
       variant: 'default' as const
     },
   ];
 
-  const recentAppointments = [
-    {
-      customerName: dir === 'rtl' ? 'أحمد محمد' : 'Ahmed Mohammed',
-      service: t('pestControl'),
-      time: '10:00 AM',
-      location: dir === 'rtl' ? 'الرياض، حي النخيل' : 'Riyadh, Al Nakhil',
-      status: 'pending' as const,
-    },
-    {
-      customerName: dir === 'rtl' ? 'سارة العلي' : 'Sara Al Ali',
-      service: t('rodentControl'),
-      time: '11:30 AM',
-      location: dir === 'rtl' ? 'جدة، حي الروضة' : 'Jeddah, Al Rawdah',
-      status: 'inProgress' as const,
-    },
-    {
-      customerName: dir === 'rtl' ? 'محمد السعيد' : 'Mohammed Al Said',
-      service: t('termiteControl'),
-      time: '02:00 PM',
-      location: dir === 'rtl' ? 'الدمام، حي الفيصلية' : 'Dammam, Al Faisaliah',
-      status: 'completed' as const,
-    },
-    {
-      customerName: dir === 'rtl' ? 'فاطمة الحربي' : 'Fatima Al Harbi',
-      service: t('disinfection'),
-      time: '04:30 PM',
-      location: dir === 'rtl' ? 'الرياض، حي العليا' : 'Riyadh, Al Olaya',
-      status: 'pending' as const,
-    },
-  ];
+  const statusStyles: Record<string, string> = {
+    pending: 'bg-warning/10 text-warning',
+    confirmed: 'bg-primary/10 text-primary',
+    in_progress: 'bg-accent/10 text-accent',
+    completed: 'bg-success/10 text-success',
+    cancelled: 'bg-destructive/10 text-destructive',
+  };
+
+  const statusLabels: Record<string, string> = {
+    pending: dir === 'rtl' ? 'قيد الانتظار' : 'Pending',
+    confirmed: dir === 'rtl' ? 'مؤكد' : 'Confirmed',
+    in_progress: dir === 'rtl' ? 'جاري' : 'In Progress',
+    completed: dir === 'rtl' ? 'مكتمل' : 'Completed',
+    cancelled: dir === 'rtl' ? 'ملغي' : 'Cancelled',
+  };
 
   const ArrowIcon = dir === 'rtl' ? ArrowLeft : ArrowRight;
 
@@ -79,20 +91,17 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6 animate-fade-in">
       {/* Quick Actions */}
       <section>
-        <QuickActions />
+        <QuickActions 
+          onAddAppointment={() => setAppointmentDialogOpen(true)}
+          onAddCustomer={() => setCustomerDialogOpen(true)}
+          onCreateInvoice={() => setInvoiceDialogOpen(true)}
+        />
       </section>
 
       {/* Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <StatCard
-            key={index}
-            title={stat.title}
-            value={stat.value}
-            icon={stat.icon}
-            trend={stat.trend}
-            variant={stat.variant}
-          />
+        {statCards.map((stat, index) => (
+          <StatCard key={index} title={stat.title} value={stat.value} icon={stat.icon} variant={stat.variant} />
         ))}
       </section>
 
@@ -100,46 +109,91 @@ const Dashboard: React.FC = () => {
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-card p-6 rounded-2xl border border-border">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">
-              {dir === 'rtl' ? 'الإيرادات الشهرية' : 'Monthly Revenue'}
-            </h3>
-            <Button variant="ghost" size="sm">
-              {t('viewAll')}
-              <ArrowIcon className="w-4 h-4 ms-2" />
+            <h3 className="text-lg font-semibold">{dir === 'rtl' ? 'الإيرادات الشهرية' : 'Monthly Revenue'}</h3>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/reports')}>
+              {t('viewAll')}<ArrowIcon className="w-4 h-4 ms-2" />
             </Button>
           </div>
           <RevenueChart />
         </div>
-
         <div className="bg-card p-6 rounded-2xl border border-border">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">
-              {dir === 'rtl' ? 'توزيع الخدمات' : 'Services Distribution'}
-            </h3>
-            <Button variant="ghost" size="sm">
-              {t('viewAll')}
-              <ArrowIcon className="w-4 h-4 ms-2" />
+            <h3 className="text-lg font-semibold">{dir === 'rtl' ? 'توزيع الخدمات' : 'Services Distribution'}</h3>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/services')}>
+              {t('viewAll')}<ArrowIcon className="w-4 h-4 ms-2" />
             </Button>
           </div>
           <ServicesChart />
         </div>
       </section>
 
-      {/* Recent Appointments */}
+      {/* Today's Appointments */}
       <section className="bg-card p-6 rounded-2xl border border-border">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">{t('recentAppointments')}</h3>
-          <Button variant="ghost" size="sm">
-            {t('viewAll')}
-            <ArrowIcon className="w-4 h-4 ms-2" />
+          <h3 className="text-lg font-semibold">
+            {dir === 'rtl' ? 'مواعيد اليوم' : "Today's Appointments"} 
+            {stats?.todayAppointments ? ` (${stats.todayAppointments})` : ''}
+          </h3>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/appointments')}>
+            {t('viewAll')}<ArrowIcon className="w-4 h-4 ms-2" />
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {recentAppointments.map((appointment, index) => (
-            <AppointmentCard key={index} {...appointment} />
-          ))}
-        </div>
+
+        {appointmentsLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          </div>
+        ) : todayAppointments && todayAppointments.length > 0 ? (
+          <div className="space-y-3">
+            {todayAppointments.map((appointment: any) => (
+              <Card key={appointment.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="text-center min-w-[60px]">
+                      <div className="text-xl font-bold text-primary">{appointment.scheduled_time?.substring(0, 5)}</div>
+                    </div>
+                    <div className="flex-1 border-s ps-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold">{appointment.customers?.name || '-'}</h4>
+                        <Badge variant="outline" className={statusStyles[appointment.status || 'pending']}>
+                          {statusLabels[appointment.status || 'pending']}
+                        </Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                        {appointment.services && (
+                          <span className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: appointment.services.color || '#2d8a5f' }} />
+                            {dir === 'rtl' ? appointment.services.name_ar : appointment.services.name_en}
+                          </span>
+                        )}
+                        {appointment.employees && (
+                          <span className="flex items-center gap-1"><User className="w-3 h-3" />{appointment.employees.name}</span>
+                        )}
+                        {appointment.customers?.address && (
+                          <span>{appointment.customers.address}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p>{dir === 'rtl' ? 'لا توجد مواعيد اليوم' : 'No appointments today'}</p>
+            <Button className="mt-4" onClick={() => setAppointmentDialogOpen(true)}>
+              {dir === 'rtl' ? 'إضافة موعد' : 'Add Appointment'}
+            </Button>
+          </div>
+        )}
       </section>
+
+      {/* Dialogs */}
+      <AppointmentDialog open={appointmentDialogOpen} onOpenChange={setAppointmentDialogOpen} appointment={null} />
+      <CustomerDialog open={customerDialogOpen} onOpenChange={setCustomerDialogOpen} customer={null} />
+      <InvoiceDialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen} invoice={null} />
     </div>
   );
 };
