@@ -41,7 +41,15 @@ const Login: React.FC = () => {
           <img 
             src="/logo.png" 
             alt="NASAYIM CLEAN" 
-            className="w-24 h-24 object-contain mb-4"
+            className="
+             w-full 
+             max-w-[180px] 
+             sm:max-w-[220px] 
+             md:max-w-[260px]
+             object-contain
+             transition-all
+             duration-300 
+             "
           />
           <h1 className="text-2xl font-bold text-foreground">{t('appName')}</h1>
           <p className="text-sm text-muted-foreground mt-1">{t('companyDescription')}</p>
