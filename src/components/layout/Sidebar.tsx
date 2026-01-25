@@ -10,7 +10,6 @@ import {
   FileText, 
   BarChart3, 
   Settings,
-  Bug,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -51,9 +50,14 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
       {/* Logo */}
       <div className="h-16 flex items-center justify-center border-b border-sidebar-border px-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-            <Bug className="w-6 h-6 text-primary-foreground" />
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="NASAYIM CLEAN" 
+            className={cn(
+              "object-contain transition-all duration-300",
+              collapsed ? "w-10 h-10" : "w-12 h-12"
+            )}
+          />
           {!collapsed && (
             <span className="font-bold text-lg whitespace-nowrap">{t('appName')}</span>
           )}

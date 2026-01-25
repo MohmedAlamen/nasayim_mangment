@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bug, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 const Register: React.FC = () => {
   const [fullName, setFullName] = useState('');
@@ -50,10 +50,13 @@ const Register: React.FC = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/30 mb-4">
-            <Bug className="w-8 h-8 text-white" />
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="NASAYIM CLEAN" 
+            className="w-24 h-24 object-contain mb-4"
+          />
           <h1 className="text-2xl font-bold text-foreground">{t('appName')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('companyDescription')}</p>
         </div>
 
         <Card className="border-border/50 shadow-xl">
