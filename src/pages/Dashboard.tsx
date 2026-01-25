@@ -88,7 +88,7 @@ const Dashboard: React.FC = () => {
   const ArrowIcon = dir === 'rtl' ? ArrowLeft : ArrowRight;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 md:space-y-6 animate-fade-in">
       {/* Quick Actions */}
       <section>
         <QuickActions 
@@ -99,26 +99,26 @@ const Dashboard: React.FC = () => {
       </section>
 
       {/* Stats Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {statCards.map((stat, index) => (
           <StatCard key={index} title={stat.title} value={stat.value} icon={stat.icon} variant={stat.variant} />
         ))}
       </section>
 
       {/* Charts Section */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-card p-6 rounded-2xl border border-border">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-card p-4 md:p-6 rounded-2xl border border-border">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">{dir === 'rtl' ? 'الإيرادات الشهرية' : 'Monthly Revenue'}</h3>
+            <h3 className="text-base md:text-lg font-semibold">{dir === 'rtl' ? 'الإيرادات الشهرية' : 'Monthly Revenue'}</h3>
             <Button variant="ghost" size="sm" onClick={() => navigate('/reports')}>
               {t('viewAll')}<ArrowIcon className="w-4 h-4 ms-2" />
             </Button>
           </div>
           <RevenueChart />
         </div>
-        <div className="bg-card p-6 rounded-2xl border border-border">
+        <div className="bg-card p-4 md:p-6 rounded-2xl border border-border">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">{dir === 'rtl' ? 'توزيع الخدمات' : 'Services Distribution'}</h3>
+            <h3 className="text-base md:text-lg font-semibold">{dir === 'rtl' ? 'توزيع الخدمات' : 'Services Distribution'}</h3>
             <Button variant="ghost" size="sm" onClick={() => navigate('/services')}>
               {t('viewAll')}<ArrowIcon className="w-4 h-4 ms-2" />
             </Button>

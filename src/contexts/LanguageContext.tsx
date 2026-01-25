@@ -11,7 +11,9 @@ interface Translations {
 
 const translations: Translations = {
   // App
-  appName: { ar: 'شركة مكافحة الحشرات', en: 'Pest Control Co.' },
+  appName: { ar: 'نسائم كلين', en: 'NASAYIM CLEAN' },
+  companyName: { ar: 'نسائم كلين', en: 'NASAYIM CLEAN' },
+  companyDescription: { ar: 'شركة خاصة متخصصة في مكافحة الحشرات والقوارض', en: 'Pest & Rodent Control Company' },
   
   // Navigation
   dashboard: { ar: 'لوحة التحكم', en: 'Dashboard' },

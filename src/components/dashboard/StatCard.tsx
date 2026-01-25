@@ -37,22 +37,22 @@ const StatCard: React.FC<StatCardProps> = ({
   return (
     <div 
       className={cn(
-        "p-6 rounded-2xl border shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02] animate-fade-in",
+        "p-4 md:p-6 rounded-xl md:rounded-2xl border shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02] animate-fade-in",
         variants[variant]
       )}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-2">
+        <div className="space-y-1 md:space-y-2 flex-1 min-w-0">
           <p className={cn(
-            "text-sm font-medium",
+            "text-xs md:text-sm font-medium truncate",
             variant === 'default' ? 'text-muted-foreground' : 'opacity-80'
           )}>
             {title}
           </p>
-          <p className="text-3xl font-bold">{value}</p>
+          <p className="text-xl md:text-3xl font-bold truncate">{value}</p>
           {trend && (
             <div className={cn(
-              "flex items-center gap-1 text-sm",
+              "flex items-center gap-1 text-xs md:text-sm",
               trend.isPositive ? 'text-success' : 'text-destructive',
               variant !== 'default' && 'opacity-90'
             )}>
@@ -62,10 +62,10 @@ const StatCard: React.FC<StatCardProps> = ({
           )}
         </div>
         <div className={cn(
-          "p-3 rounded-xl",
+          "p-2 md:p-3 rounded-lg md:rounded-xl flex-shrink-0",
           iconVariants[variant]
         )}>
-          <Icon className="w-6 h-6" />
+          <Icon className="w-4 h-4 md:w-6 md:h-6" />
         </div>
       </div>
     </div>

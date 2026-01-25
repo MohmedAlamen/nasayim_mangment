@@ -50,6 +50,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     { 
       icon: Plus, 
       label: dir === 'rtl' ? 'إضافة موعد' : 'Add Appointment',
+      shortLabel: dir === 'rtl' ? 'موعد' : 'Appointment',
       variant: 'default' as const,
       gradient: true,
       onClick: handleAddAppointment,
@@ -57,38 +58,43 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     { 
       icon: Users, 
       label: dir === 'rtl' ? 'عميل جديد' : 'New Customer',
+      shortLabel: dir === 'rtl' ? 'عميل' : 'Customer',
       variant: 'outline' as const,
       onClick: handleAddCustomer,
     },
     { 
       icon: FileText, 
       label: dir === 'rtl' ? 'إنشاء فاتورة' : 'Create Invoice',
+      shortLabel: dir === 'rtl' ? 'فاتورة' : 'Invoice',
       variant: 'outline' as const,
       onClick: handleCreateInvoice,
     },
     { 
       icon: Calendar, 
       label: dir === 'rtl' ? 'جدولة خدمة' : 'Schedule Service',
+      shortLabel: dir === 'rtl' ? 'خدمة' : 'Service',
       variant: 'outline' as const,
       onClick: handleScheduleService,
     },
   ];
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2 md:gap-3">
       {actions.map((action, index) => (
         <Button
           key={index}
           variant={action.variant}
+          size="sm"
           onClick={action.onClick}
           className={
             action.gradient 
-              ? "gradient-primary text-primary-foreground hover:opacity-90 shadow-glow" 
-              : "hover:bg-muted"
+              ? "gradient-primary text-primary-foreground hover:opacity-90 shadow-glow text-xs md:text-sm" 
+              : "hover:bg-muted text-xs md:text-sm"
           }
         >
-          <action.icon className="w-4 h-4 me-2" />
-          {action.label}
+          <action.icon className="w-4 h-4 me-1 md:me-2" />
+          <span className="hidden sm:inline">{action.label}</span>
+          <span className="sm:hidden">{action.shortLabel}</span>
         </Button>
       ))}
     </div>

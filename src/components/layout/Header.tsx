@@ -47,27 +47,36 @@ const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
     <header 
       className={cn(
         "fixed top-0 h-16 bg-card/80 backdrop-blur-md border-b border-border z-30 transition-all duration-300",
+        // Mobile: full width
+        "left-0 right-0",
+        // Desktop: adjust for sidebar
         dir === 'rtl' 
-          ? (sidebarCollapsed ? 'left-0 right-20' : 'left-0 right-64')
-          : (sidebarCollapsed ? 'left-20 right-0' : 'left-64 right-0')
+          ? (sidebarCollapsed ? 'lg:right-20' : 'lg:right-64')
+          : (sidebarCollapsed ? 'lg:left-20' : 'lg:left-64')
       )}
     >
-      <div className="h-full px-6 flex items-center justify-between">
-        {/* Welcome Message */}
-        <div>
+      <div className="h-full px-4 md:px-6 flex items-center justify-between">
+        {/* Welcome Message - Hidden on small screens */}
+        <div className="hidden md:block ps-12 lg:ps-0">
           <h2 className="text-lg font-semibold text-foreground">
             {t('welcomeBack')}{profile ? `, ${profile.full_name}` : ''} 👋
           </h2>
           <p className="text-sm text-muted-foreground">{t('todayOverview')}</p>
         </div>
 
+        {/* Mobile Logo */}
+        <div className="flex md:hidden items-center gap-2 ps-10">
+          <img src="/logo.png" alt="NASAYIM CLEAN" className="w-8 h-8 object-contain" />
+          <span className="font-bold text-sm">{t('appName')}</span>
+        </div>
+
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2">
           {/* Language Switcher */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="hover:bg-muted">
-                <Globe className="w-5 h-5" />
+              <Button variant="ghost" size="icon" className="hover:bg-muted h-9 w-9">
+                <Globe className="w-4 h-4 md:w-5 md:h-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}>
@@ -91,27 +100,27 @@ const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
             variant="ghost" 
             size="icon" 
             onClick={toggleTheme}
-            className="hover:bg-muted"
+            className="hover:bg-muted h-9 w-9"
           >
             {theme === 'light' ? (
-              <Moon className="w-5 h-5" />
+              <Moon className="w-4 h-4 md:w-5 md:h-5" />
             ) : (
-              <Sun className="w-5 h-5" />
+              <Sun className="w-4 h-4 md:w-5 md:h-5" />
             )}
           </Button>
 
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="hover:bg-muted relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 end-2 w-2 h-2 bg-accent rounded-full" />
+          <Button variant="ghost" size="icon" className="hover:bg-muted relative h-9 w-9">
+            <Bell className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="absolute top-1.5 end-1.5 w-2 h-2 bg-accent rounded-full" />
           </Button>
 
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="hover:bg-muted">
-                <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center">
-                  <User className="w-4 h-4 text-primary-foreground" />
+              <Button variant="ghost" size="icon" className="hover:bg-muted h-9 w-9">
+                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full gradient-primary flex items-center justify-center">
+                  <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary-foreground" />
                 </div>
               </Button>
             </DropdownMenuTrigger>
