@@ -129,12 +129,12 @@ const Login: React.FC = () => {
                 )}
               </Button>
 
-              <p className="text-sm text-center text-muted-foreground">
+            \*  <p className="text-sm text-center text-muted-foreground">
                 {dir === 'rtl' ? 'ليس لديك حساب؟' : "Don't have an account?"}{' '}
                 <Link to="/register" className="text-primary hover:underline font-medium">
                   {dir === 'rtl' ? 'إنشاء حساب' : 'Sign up'}
                 </Link>
-              </p>
+              </p> *\
             </CardFooter>
           </form>
         </Card>
