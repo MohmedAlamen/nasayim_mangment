@@ -21,6 +21,12 @@ const Employees: React.FC = () => {
 
   const statusStyles: Record<string, string> = { available: 'bg-success/10 text-success', busy: 'bg-warning/10 text-warning', off: 'bg-muted text-muted-foreground' };
   const statusLabels: Record<string, string> = { available: dir === 'rtl' ? 'متاح' : 'Available', busy: dir === 'rtl' ? 'مشغول' : 'Busy', off: dir === 'rtl' ? 'إجازة' : 'Off' };
+  const roleLabels: Record<string, string> = {
+    technician: dir === 'rtl' ? 'فني' : 'Technician',
+    senior_technician: dir === 'rtl' ? 'فني أول' : 'Senior Technician',
+    supervisor: dir === 'rtl' ? 'مشرف' : 'Supervisor',
+    admin: dir === 'rtl' ? 'مدير' : 'Admin',
+  };
 
   const handleEdit = (e: Employee) => { setSelectedEmployee(e); setDialogOpen(true); };
   const handleDelete = (e: Employee) => { setSelectedEmployee(e); setDeleteDialogOpen(true); };
@@ -45,7 +51,7 @@ const Employees: React.FC = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-14 h-14 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-bold text-xl">{employee.name.charAt(0)}</div>
-                    <div><h3 className="font-semibold text-foreground">{employee.name}</h3><p className="text-sm text-muted-foreground">{employee.role}</p><Badge variant="outline" className={statusStyles[employee.status || 'available']}>{statusLabels[employee.status || 'available']}</Badge></div>
+                    <div><h3 className="font-semibold text-foreground">{employee.name}</h3><p className="text-sm text-muted-foreground">{roleLabels[employee.role] || employee.role}</p><Badge variant="outline" className={statusStyles[employee.status || 'available']}>{statusLabels[employee.status || 'available']}</Badge></div>
                   </div>
                   {isAdmin && <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}><DropdownMenuItem onClick={() => handleEdit(employee)}>{dir === 'rtl' ? 'تعديل' : 'Edit'}</DropdownMenuItem><DropdownMenuItem onClick={() => handleDelete(employee)} className="text-destructive">{dir === 'rtl' ? 'حذف' : 'Delete'}</DropdownMenuItem></DropdownMenuContent></DropdownMenu>}
                 </div>

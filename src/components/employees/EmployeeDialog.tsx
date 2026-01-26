@@ -82,7 +82,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({ open, onOpenChange, emp
       password: '',
       name: '',
       phone: '',
-      role: 'فني',
+      role: 'technician',
     },
   });
 
@@ -171,19 +171,11 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({ open, onOpenChange, emp
 
   const isLoading = createEmployee.isPending || updateEmployee.isPending;
 
-  const roles = dir === 'rtl' 
-    ? [
-        { value: 'فني', label: 'فني' },
-        { value: 'مشرف', label: 'مشرف' },
-        { value: 'سائق', label: 'سائق' },
-        { value: 'إداري', label: 'إداري' },
-      ]
-    : [
-        { value: 'technician', label: 'Technician' },
-        { value: 'supervisor', label: 'Supervisor' },
-        { value: 'driver', label: 'Driver' },
-        { value: 'admin', label: 'Admin' },
-      ];
+  const roles = [
+    { value: 'technician', label: dir === 'rtl' ? 'فني' : 'Technician' },
+    { value: 'senior_technician', label: dir === 'rtl' ? 'فني أول' : 'Senior Technician' },
+    { value: 'supervisor', label: dir === 'rtl' ? 'مشرف' : 'Supervisor' },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

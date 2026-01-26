@@ -74,13 +74,33 @@ serve(async (req) => {
         name: full_name,
         email,
         phone: phone || '',
-        role: employeeRole || 'فني',
+        role: employeeRole || 'technician',
         status: 'available'
       })
 
     if (employeeError) {
       // If employee creation fails, we should still have the user, just log the error
       console.error('Failed to create employee record:', employeeError)
+    }
+
+    // Map employee role to app_role for user_roles table
+    let appRole: 'admin' | 'manager' | 'technician' = 'technician';
+    if (employeeRole === 'supervisor') {
+      appRole = 'manager';
+    } else if (employeeRole === 'admin') {
+      appRole = 'admin';
+    }
+
+    // Add role to user_roles table
+    const { error: roleInsertError } = await supabaseAdmin
+      .from('user_roles')
+      .insert({
+        user_id: newUser.user.id,
+        role: appRole
+      })
+
+    if (roleInsertError) {
+      console.error('Failed to create user role:', roleInsertError)
     }
 
     return new Response(
