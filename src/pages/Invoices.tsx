@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Plus, Download, Eye, MoreHorizontal, FileText, Loader2, Printer } from 'lucide-react';
+import { Plus, Download, Upload, Eye, MoreHorizontal, FileText, Loader2, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -12,8 +12,10 @@ import { ar } from 'date-fns/locale';
 import { useInvoices, useDeleteInvoice, InvoiceWithRelations } from '@/hooks/useInvoices';
 import InvoiceDialog from '@/components/invoices/InvoiceDialog';
 import InvoicePrint from '@/components/invoices/InvoicePrint';
+import ImportInvoicesDialog from '@/components/invoices/ImportInvoicesDialog';
 import DeleteDialog from '@/components/shared/DeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
+import { exportInvoicesToCSV, exportInvoicesToJSON } from '@/utils/invoiceExport';
 
 const Invoices: React.FC = () => {
   const { t, dir } = useLanguage();
@@ -23,6 +25,7 @@ const Invoices: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithRelations | null>(null);
 
   const { data: invoices, isLoading } = useInvoices();
@@ -64,8 +67,25 @@ const Invoices: React.FC = () => {
           <h1 className="text-2xl font-bold">{t('invoices')}</h1>
           <p className="text-muted-foreground">{dir === 'rtl' ? 'إدارة الفواتير والمدفوعات' : 'Manage invoices and payments'}</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline"><Download className="w-4 h-4 me-2" />{t('export')}</Button>
+        <div className="flex flex-wrap gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Download className="w-4 h-4 me-2" />{t('export')}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}>
+              <DropdownMenuItem onClick={() => invoices && exportInvoicesToCSV(invoices, dir)}>
+                {dir === 'rtl' ? 'تصدير CSV' : 'Export CSV'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => invoices && exportInvoicesToJSON(invoices)}>
+                {dir === 'rtl' ? 'تصدير JSON' : 'Export JSON'}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+            <Upload className="w-4 h-4 me-2" />{dir === 'rtl' ? 'استيراد' : 'Import'}
+          </Button>
           <Button onClick={handleAdd} className="gradient-primary text-primary-foreground shadow-glow">
             <Plus className="w-4 h-4 me-2" />{dir === 'rtl' ? 'فاتورة جديدة' : 'New Invoice'}
           </Button>
@@ -151,6 +171,7 @@ const Invoices: React.FC = () => {
       {/* Dialogs */}
       <InvoiceDialog open={dialogOpen} onOpenChange={setDialogOpen} invoice={selectedInvoice} />
       <InvoicePrint open={printDialogOpen} onOpenChange={setPrintDialogOpen} invoice={selectedInvoice} />
+      <ImportInvoicesDialog open={importDialogOpen} onOpenChange={setImportDialogOpen} />
       <DeleteDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={confirmDelete} isLoading={deleteInvoice.isPending} />
     </div>
   );

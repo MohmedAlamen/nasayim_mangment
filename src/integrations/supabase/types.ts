@@ -22,6 +22,7 @@ export type Database = {
           employee_id: string | null
           id: string
           notes: string | null
+          photos: Json | null
           scheduled_date: string
           scheduled_time: string
           service_id: string | null
@@ -35,6 +36,7 @@ export type Database = {
           employee_id?: string | null
           id?: string
           notes?: string | null
+          photos?: Json | null
           scheduled_date: string
           scheduled_time: string
           service_id?: string | null
@@ -48,6 +50,7 @@ export type Database = {
           employee_id?: string | null
           id?: string
           notes?: string | null
+          photos?: Json | null
           scheduled_date?: string
           scheduled_time?: string
           service_id?: string | null
@@ -81,6 +84,7 @@ export type Database = {
       customers: {
         Row: {
           address: string
+          attachments: Json | null
           city: string
           created_at: string
           email: string | null
@@ -94,6 +98,7 @@ export type Database = {
         }
         Insert: {
           address: string
+          attachments?: Json | null
           city: string
           created_at?: string
           email?: string | null
@@ -107,6 +112,7 @@ export type Database = {
         }
         Update: {
           address?: string
+          attachments?: Json | null
           city?: string
           created_at?: string
           email?: string | null

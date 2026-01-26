@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Customer, useCreateCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
+import FileUpload from '@/components/shared/FileUpload';
 
 const customerSchema = z.object({
   name: z.string().min(2, 'الاسم مطلوب'),
@@ -37,6 +38,7 @@ const customerSchema = z.object({
   address: z.string().min(5, 'العنوان مطلوب'),
   status: z.string().default('active'),
   notes: z.string().optional(),
+  attachments: z.array(z.string()).default([]),
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -62,6 +64,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
       address: customer?.address || '',
       status: customer?.status || 'active',
       notes: customer?.notes || '',
+      attachments: (customer?.attachments as string[]) || [],
     },
   });
 
@@ -75,6 +78,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         address: customer.address,
         status: customer.status || 'active',
         notes: customer.notes || '',
+        attachments: (customer.attachments as string[]) || [],
       });
     } else {
       form.reset({
@@ -85,6 +89,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         address: '',
         status: 'active',
         notes: '',
+        attachments: [],
       });
     }
   }, [customer, form]);
@@ -99,6 +104,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         address: values.address,
         status: values.status,
         notes: values.notes || null,
+        attachments: values.attachments,
       };
       
       if (customer) {
@@ -220,6 +226,24 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
                   <FormLabel>{dir === 'rtl' ? 'ملاحظات' : 'Notes'}</FormLabel>
                   <FormControl>
                     <Textarea placeholder={dir === 'rtl' ? 'ملاحظات إضافية...' : 'Additional notes...'} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="attachments"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{dir === 'rtl' ? 'المرفقات' : 'Attachments'}</FormLabel>
+                  <FormControl>
+                    <FileUpload
+                      folder="customers"
+                      value={field.value}
+                      onChange={field.onChange}
+                      maxFiles={5}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
