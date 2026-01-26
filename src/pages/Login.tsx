@@ -51,8 +51,27 @@ const Login: React.FC = () => {
              duration-300 
              "
           />
-          <h1 className="text-2xl font-bold text-foreground">{t('appName')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{t('companyDescription')}</p>
+          {/*  <h1 className="text-2xl font-bold text-foreground">{t('appName')}</h1>*/} 
+          
+          <h1 className="
+           text-3xl 
+           sm:text-4xl 
+           font-extrabold 
+           text-center
+           bg-gradient-to-r 
+           from-primary 
+           to-green-600
+           bg-clip-text 
+           text-transparent
+           ">
+           {t('appName')}
+          </h1>
+          
+          {/* <p className="text-sm text-muted-foreground mt-1">{t('companyDescription')}</p>*/} 
+
+          <p className="text-base sm:text-lg text-muted-foreground mt-2 text-center">
+           {t('companyDescription')}
+          </p>
         </div>
 
         <Card className="border-border/50 shadow-xl">
