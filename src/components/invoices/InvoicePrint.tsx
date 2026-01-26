@@ -47,7 +47,7 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
          printWindow.focus();
          printWindow.print();
         };
-       // printWindow.print();
+       printWindow.print();
       }
     }
   };
