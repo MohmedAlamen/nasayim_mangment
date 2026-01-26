@@ -16,7 +16,7 @@ interface InvoicePrintProps {
 const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice }) => {
   const { dir } = useLanguage();
 
-  const handlePrint = () => {
+  {/*const handlePrint = () => {
     const printContent = document.getElementById('invoice-print-content');
     if (printContent) {
       const printWindow = window.open('', '_blank');
@@ -44,7 +44,54 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
         printWindow.document.close();
         printWindow.print();
       }
-    }
+    }*/} 
+    const handlePrint = () => {
+  const printContent = document.getElementById('invoice-print-content');
+  if (!printContent) return;
+
+  const printWindow = window.open('', '_blank', 'width=900,height=650');
+  if (!printWindow) return;
+
+  printWindow.document.open();
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html dir="${dir}">
+      <head>
+        <title>${invoice?.invoice_number || 'Invoice'}</title>
+        <meta charset="UTF-8" />
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            direction: ${dir};
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: ${dir === 'rtl' ? 'right' : 'left'};
+          }
+          th {
+            background: #f5f5f5;
+          }
+        </style>
+      </head>
+      <body>
+        ${printContent.innerHTML}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+
+  // 🔥 هذا هو السطر المهم
+  printWindow.onload = () => {
+    printWindow.focus();
+    printWindow.print();
+  };
+};
   };
 
   if (!invoice) return null;
