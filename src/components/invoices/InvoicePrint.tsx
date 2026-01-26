@@ -42,12 +42,7 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
           </html>
         `);
         printWindow.document.close();
-        // 🔥 هذا هو السطر المهم
-        printWindow.onload = () => {
-         printWindow.focus();
-         printWindow.print();
-        };
-       printWindow.print();
+        printWindow.print();
       }
     }
   };
