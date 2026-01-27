@@ -19,36 +19,48 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
   const handlePrint = () => {
     const printContent = document.getElementById('invoice-print-content');
     if (printContent) {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
+      // Create a hidden iframe for printing to avoid popup blockers and ensure styles load
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow?.document;
+      if (doc) {
+        doc.open();
+        doc.write(`
           <html dir="${dir}">
             <head>
               <title>${invoice?.invoice_number || 'Invoice'}</title>
+              <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
               <style>
-                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-                body { font-family: 'Cairo', Arial, sans-serif; padding: 40px; direction: ${dir}; color: #333; }
-                .invoice-card { max-width: 800px; margin: auto; border: 1px solid #eee; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+                body { font-family: 'Cairo', Arial, sans-serif; padding: 20px; direction: ${dir}; color: #333; background: white; }
+                .invoice-card { max-width: 800px; margin: auto; padding: 20px; }
                 .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2d8a5f; padding-bottom: 20px; margin-bottom: 30px; }
                 .company-info h1 { margin: 0; color: #2d8a5f; font-size: 28px; }
                 .company-info p { margin: 5px 0; color: #666; font-size: 14px; }
-                .logo-img { height: 80px; object-contain: contain; }
+                .logo-img { height: 80px; width: auto; object-fit: contain; }
                 .invoice-meta { display: flex; justify-content: space-between; margin-bottom: 30px; gap: 20px; }
                 .meta-box { flex: 1; background: #f9fbf9; padding: 15px; border-radius: 8px; border: 1px solid #eef2ee; }
                 .meta-box h3 { margin-top: 0; margin-bottom: 10px; font-size: 16px; color: #2d8a5f; border-bottom: 1px solid #e0e8e0; padding-bottom: 5px; }
                 .meta-box p { margin: 5px 0; font-size: 14px; line-height: 1.6; }
-                table { width: 100%; border-collapse: collapse; margin: 25px 0; border-radius: 8px; overflow: hidden; }
-                th { background: #2d8a5f; color: white; padding: 12px; text-align: ${dir === 'rtl' ? 'right' : 'left'}; font-weight: bold; }
+                table { width: 100%; border-collapse: collapse; margin: 25px 0; }
+                th { background: #2d8a5f; color: white; padding: 12px; text-align: ${dir === 'rtl' ? 'right' : 'left'}; font-weight: bold; -webkit-print-color-adjust: exact; }
                 td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
-                tr:nth-child(even) { background: #fafafa; }
+                tr:nth-child(even) { background: #fafafa; -webkit-print-color-adjust: exact; }
                 .totals-section { display: flex; flex-direction: column; align-items: flex-end; margin-top: 20px; }
                 .total-row { display: flex; gap: 40px; padding: 10px 0; border-top: 1px solid #eee; width: 250px; justify-content: space-between; }
-                .grand-total { font-size: 20px; font-weight: bold; color: #2d8a5f; border-top: 2px solid #2d8a5f; margin-top: 5px; padding-top: 15px; }
-                .notes { margin-top: 30px; padding: 15px; background: #fff9f0; border-radius: 8px; border: 1px solid #ffe8cc; font-size: 13px; }
+                .grand-total { font-size: 20px; font-weight: bold; color: #2d8a5f; border-top: 2px solid #2d8a5f; margin-top: 5px; padding-top: 15px; -webkit-print-color-adjust: exact; }
+                .notes { margin-top: 30px; padding: 15px; background: #fff9f0; border-radius: 8px; border: 1px solid #ffe8cc; font-size: 13px; -webkit-print-color-adjust: exact; }
                 .footer { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; }
                 @media print {
-                  body { padding: 0; }
-                  .invoice-card { border: none; box-shadow: none; width: 100%; max-width: none; }
+                  body { padding: 0; margin: 0; }
+                  .invoice-card { width: 100%; max-width: none; border: none; box-shadow: none; }
+                  @page { margin: 1cm; }
                 }
               </style>
             </head>
@@ -59,7 +71,7 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
                     <h1>${t('appName')}</h1>
                     <p>${t('companyDescription')}</p>
                   </div>
-                  <img src="/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'" />
+                  <img src="${window.location.origin}/logo.png" alt="Logo" class="logo-img" />
                 </div>
 
                 <div class="invoice-meta">
@@ -118,14 +130,20 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
                   <p>${new Date().getFullYear()} &copy; ${dir === 'rtl' ? 'جميع الحقوق محفوظة' : 'All rights reserved'}</p>
                 </div>
               </div>
+              <script>
+                window.onload = function() {
+                  setTimeout(function() {
+                    window.print();
+                    setTimeout(function() {
+                      window.frameElement.remove();
+                    }, 100);
+                  }, 500);
+                };
+              </script>
             </body>
           </html>
         `);
-        printWindow.document.close();
-        // Wait for images to load before printing
-        setTimeout(() => {
-          printWindow.print();
-        }, 500);
+        doc.close();
       }
     } 
   };
