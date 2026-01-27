@@ -57,6 +57,16 @@ interface EmployeeDialogProps {
   employee?: Employee | null;
 }
 
+// Map Arabic roles to English keys if they somehow get through
+const roleMap: Record<string, string> = {
+  'فني': 'technician',
+  'فني أول': 'senior_technician',
+  'مشرف': 'supervisor',
+  'technician': 'technician',
+  'senior_technician': 'senior_technician',
+  'supervisor': 'supervisor'
+};
+
 const EmployeeDialog: React.FC<EmployeeDialogProps> = ({ open, onOpenChange, employee }) => {
   const { dir } = useLanguage();
   const { toast } = useToast();
@@ -108,13 +118,15 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({ open, onOpenChange, emp
 
   const onSubmit = async (values: EmployeeFormValues) => {
     try {
+      console.log('Submitting employee form with values:', values);
       const employeeData = {
         name: values.name,
         phone: values.phone,
         email: values.email || null,
-        role: values.role,
+        role: roleMap[values.role] || values.role,
         status: values.status,
       };
+      console.log('Processed employee data for Supabase:', employeeData);
       
       if (employee) {
         await updateEmployee.mutateAsync({ id: employee.id, ...employeeData });
@@ -131,6 +143,7 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({ open, onOpenChange, emp
   const onCreateAccount = async (values: AccountFormValues) => {
     setCreatingAccount(true);
     try {
+      console.log('Creating account with values:', values);
       const { data: sessionData } = await supabase.auth.getSession();
       
       const response = await supabase.functions.invoke('create-employee-account', {
@@ -139,9 +152,10 @@ const EmployeeDialog: React.FC<EmployeeDialogProps> = ({ open, onOpenChange, emp
           password: values.password,
           full_name: values.name,
           phone: values.phone,
-          role: values.role,
+          role: roleMap[values.role] || values.role,
         },
       });
+      console.log('Edge Function response:', response);
 
       if (response.error) {
         throw new Error(response.error.message);
