@@ -39,7 +39,7 @@ const Login: React.FC = () => {
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-10">
           <div className="relative mb-6">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-green-600 rounded-full blur opacity-25"></div>
+            <div className="absolute -inset-1"></div>
             <img 
               src="/logo.png" 
               alt="NASAYIM CLEAN" 
