@@ -112,7 +112,15 @@ const Login: React.FC = () => {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="password">{dir === 'rtl' ? 'كلمة المرور' : 'Password'}</Label>
+                  <Label htmlFor="password" className="text-sm font-semibold">
+                    {dir === 'rtl' ? 'كلمة المرور' : 'Password'}
+                  </Label>
+                  <Link 
+                    to="/forgot-password" 
+                    className="text-xs text-primary hover:underline"
+                  >
+                    {dir === 'rtl' ? 'نسيت كلمة المرور؟' : 'Forgot password?'}
+                  </Link>
                 </div>
                 <div className="relative">
                   <Input
