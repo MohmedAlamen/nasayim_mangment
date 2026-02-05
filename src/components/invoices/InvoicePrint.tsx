@@ -101,7 +101,7 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
                   <tbody>
                     <tr>
                       <td>1</td>
-                      <td>${dir === 'rtl' ? invoice?.appointments?.services?.name_ar : invoice?.appointments?.services?.name_en || (dir === 'rtl' ? 'خدمة مكافحة حشرات' : 'Pest Control Service')}</td>
+                      <td>${dir === 'rtl' ? (invoice?.appointments?.services?.name_ar || 'خدمة مكافحة حشرات') : (invoice?.appointments?.services?.name_en || 'Pest Control Service')}</td>
                       <td>${invoice?.appointments?.scheduled_date || '-'}</td>
                       <td style="text-align: ${dir === 'rtl' ? 'left' : 'right'}">${invoice?.amount} ${t('currency')}</td>
                     </tr>
@@ -233,7 +233,7 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
                   <tr>
                     <td className="p-4">1</td>
                     <td className="p-4 font-medium">
-                      {dir === 'rtl' ? invoice.appointments?.services?.name_ar : invoice.appointments?.services?.name_en || (dir === 'rtl' ? 'خدمة مكافحة حشرات' : 'Pest Control Service')}
+                      {dir === 'rtl' ? (invoice.appointments?.services?.name_ar || 'خدمة مكافحة حشرات') : (invoice.appointments?.services?.name_en || 'Pest Control Service')}
                     </td>
                     <td className="p-4 text-muted-foreground">{invoice.appointments?.scheduled_date || '-'}</td>
                     <td className="p-4 text-end font-bold">{invoice.amount} {t('currency')}</td>
