@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar as CalendarIcon, User, MoreVertical, Loader2 } from 'lucide-react';
 import { format, startOfToday } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -18,6 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const Appointments: React.FC = () => {
   const { t, dir } = useLanguage();
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(startOfToday());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -54,7 +56,7 @@ const Appointments: React.FC = () => {
       {!isLoading && appointments && appointments.length > 0 && (
         <div className="space-y-3">
           {appointments.map((a) => (
-            <Card key={a.id} className="hover:shadow-md transition-shadow">
+            <Card key={a.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/appointments/${a.id}`)}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex gap-4 flex-1">
@@ -67,7 +69,7 @@ const Appointments: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}><DropdownMenuItem onClick={() => handleEdit(a)}>{dir === 'rtl' ? 'تعديل' : 'Edit'}</DropdownMenuItem>{isAdmin && <DropdownMenuItem onClick={() => handleDelete(a)} className="text-destructive">{dir === 'rtl' ? 'إلغاء' : 'Cancel'}</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
+                  <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'}><DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEdit(a); }}>{dir === 'rtl' ? 'تعديل' : 'Edit'}</DropdownMenuItem>{isAdmin && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDelete(a); }} className="text-destructive">{dir === 'rtl' ? 'إلغاء' : 'Cancel'}</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
                 </div>
               </CardContent>
             </Card>
