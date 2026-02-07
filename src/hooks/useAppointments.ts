@@ -8,10 +8,65 @@ export type AppointmentInsert = TablesInsert<'appointments'>;
 export type AppointmentUpdate = TablesUpdate<'appointments'>;
 
 export interface AppointmentWithRelations extends Appointment {
-  customers?: { name: string } | null;
+  customers?: { name: string; email?: string | null } | null;
   services?: { name_ar: string; name_en: string; color: string | null } | null;
   employees?: { name: string } | null;
 }
+
+// Helper function to send appointment notification
+const sendAppointmentNotification = async (
+  appointmentId: string,
+  type: 'created' | 'updated' | 'cancelled',
+  language: 'ar' | 'en' = 'ar'
+) => {
+  try {
+    // Fetch appointment with customer and service details
+    const { data: appointment, error } = await supabase
+      .from('appointments')
+      .select(`
+        *,
+        customers(name, email),
+        services(name_ar, name_en)
+      `)
+      .eq('id', appointmentId)
+      .single();
+
+    if (error || !appointment) {
+      console.error('Failed to fetch appointment for notification:', error);
+      return;
+    }
+
+    const customerEmail = (appointment.customers as any)?.email;
+    if (!customerEmail) {
+      console.log('No customer email, skipping notification');
+      return;
+    }
+
+    const serviceName = language === 'ar' 
+      ? (appointment.services as any)?.name_ar 
+      : (appointment.services as any)?.name_en;
+
+    const { error: notifyError } = await supabase.functions.invoke('send-appointment-notification', {
+      body: {
+        customerEmail,
+        customerName: (appointment.customers as any)?.name || 'Customer',
+        serviceName: serviceName || 'Service',
+        appointmentDate: appointment.scheduled_date,
+        appointmentTime: appointment.scheduled_time.substring(0, 5),
+        type,
+        language,
+      },
+    });
+
+    if (notifyError) {
+      console.error('Failed to send appointment notification:', notifyError);
+    } else {
+      console.log(`Appointment ${type} notification sent successfully`);
+    }
+  } catch (err) {
+    console.error('Error sending notification:', err);
+  }
+};
 
 export const useAppointments = (date?: string) => {
   return useQuery({
@@ -21,7 +76,7 @@ export const useAppointments = (date?: string) => {
         .from('appointments')
         .select(`
           *,
-          customers(name),
+          customers(name, email),
           services(name_ar, name_en, color),
           employees(name)
         `)
@@ -47,7 +102,7 @@ export const useAppointment = (id: string) => {
         .from('appointments')
         .select(`
           *,
-          customers(name),
+          customers(name, email),
           services(name_ar, name_en, color),
           employees(name)
         `)
@@ -74,12 +129,14 @@ export const useCreateAppointment = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       toast({
         title: 'تم بنجاح',
         description: 'تم إنشاء الموعد بنجاح',
       });
+      // Send email notification in background
+      sendAppointmentNotification(data.id, 'created');
     },
     onError: (error) => {
       toast({
@@ -106,12 +163,14 @@ export const useUpdateAppointment = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       toast({
         title: 'تم بنجاح',
         description: 'تم تحديث الموعد بنجاح',
       });
+      // Send email notification in background
+      sendAppointmentNotification(data.id, 'updated');
     },
     onError: (error) => {
       toast({
@@ -129,6 +188,9 @@ export const useDeleteAppointment = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // Send cancellation notification before deleting
+      await sendAppointmentNotification(id, 'cancelled');
+      
       const { error } = await supabase
         .from('appointments')
         .delete()
