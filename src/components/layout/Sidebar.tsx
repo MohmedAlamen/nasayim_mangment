@@ -8,6 +8,7 @@ import {
   Calendar, 
   UserCog, 
   FileText, 
+  Wallet,
   BarChart3, 
   Settings,
   ChevronLeft,
@@ -31,6 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
     { path: '/appointments', icon: Calendar, label: 'appointments' },
     { path: '/employees', icon: UserCog, label: 'employees' },
     { path: '/invoices', icon: FileText, label: 'invoices' },
+    { path: '/expenses', icon: Wallet, label: dir === 'rtl' ? 'المصروفات' : 'Expenses' },
     { path: '/reports', icon: BarChart3, label: 'reports' },
     { path: '/settings', icon: Settings, label: 'settings' },
   ];
