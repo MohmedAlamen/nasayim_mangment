@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   LayoutDashboard, 
   Users, 
@@ -12,7 +13,8 @@ import {
   BarChart3, 
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ClipboardList
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -23,19 +25,25 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
   const { t, dir } = useLanguage();
+  const { isAdmin, isManager } = useAuth();
   const location = useLocation();
 
+  // Base navigation items visible to all staff
   const navItems = [
-    { path: '/', icon: LayoutDashboard, label: 'dashboard' },
-    { path: '/customers', icon: Users, label: 'customers' },
-    { path: '/services', icon: Wrench, label: 'services' },
-    { path: '/appointments', icon: Calendar, label: 'appointments' },
-    { path: '/employees', icon: UserCog, label: 'employees' },
-    { path: '/invoices', icon: FileText, label: 'invoices' },
-    { path: '/expenses', icon: Wallet, label: dir === 'rtl' ? 'المصروفات' : 'Expenses' },
-    { path: '/reports', icon: BarChart3, label: 'reports' },
-    { path: '/settings', icon: Settings, label: 'settings' },
+    { path: '/', icon: LayoutDashboard, label: 'dashboard', adminOnly: false },
+    { path: '/my-appointments', icon: ClipboardList, label: dir === 'rtl' ? 'مواعيدي' : 'My Appointments', adminOnly: false },
+    { path: '/customers', icon: Users, label: 'customers', adminOnly: false },
+    { path: '/services', icon: Wrench, label: 'services', adminOnly: false },
+    { path: '/appointments', icon: Calendar, label: 'appointments', adminOnly: false },
+    { path: '/employees', icon: UserCog, label: 'employees', adminOnly: true },
+    { path: '/invoices', icon: FileText, label: 'invoices', adminOnly: false },
+    { path: '/expenses', icon: Wallet, label: dir === 'rtl' ? 'المصروفات' : 'Expenses', adminOnly: false },
+    { path: '/reports', icon: BarChart3, label: 'reports', adminOnly: true },
+    { path: '/settings', icon: Settings, label: 'settings', adminOnly: false },
   ];
+
+  // Filter items based on user role
+  const filteredNavItems = navItems.filter(item => !item.adminOnly || isAdmin || isManager);
 
   const CollapseIcon = dir === 'rtl' 
     ? (collapsed ? ChevronLeft : ChevronRight)
@@ -68,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
 
       {/* Navigation */}
       <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto">
-        {navItems.map((item) => {
+        {filteredNavItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <NavLink
