@@ -36,8 +36,7 @@ const customerSchema = z.object({
   email: z.string().email('البريد الإلكتروني غير صحيح').optional().or(z.literal('')),
   city: z.string().min(2, 'المدينة مطلوبة'),
   address: z.string().min(5, 'العنوان مطلوب'),
-  status: z.string().default('active'),
-  {/*notes: z.string().optional(),*/} 
+  status: z.string().default('active'), 
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -61,8 +60,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
       email: customer?.email || '',
       city: customer?.city || '',
       address: customer?.address || '',
-      status: customer?.status || 'active',
-      {/*notes: customer?.notes || '',*/} 
+      status: customer?.status || 'active', 
     },
   });
 
@@ -75,7 +73,6 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         city: customer.city,
         address: customer.address,
         status: customer.status || 'active',
-        {/*notes: customer.notes || '',*/} 
       });
     } else {
       form.reset({
@@ -84,8 +81,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         email: '',
         city: '',
         address: '',
-        status: 'active',
-        {/*notes: '',*/} 
+        status: 'active', 
       });
     }
   }, [customer, form]);
@@ -99,7 +95,6 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         city: values.city,
         address: values.address,
         status: values.status,
-        {/*notes: values.notes || null,*/} 
       };
       
       if (customer) {
@@ -213,19 +208,6 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
                 </FormItem>
               )}
             />
-            {/*<FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dir === 'rtl' ? 'ملاحظات' : 'Notes'}</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder={dir === 'rtl' ? 'ملاحظات إضافية...' : 'Additional notes...'} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />*/} 
             <div className="flex gap-3 pt-4">
               <Button type="submit" className="flex-1" disabled={isLoading}>
                 {isLoading ? (dir === 'rtl' ? 'جاري الحفظ...' : 'Saving...') : (dir === 'rtl' ? 'حفظ' : 'Save')}
