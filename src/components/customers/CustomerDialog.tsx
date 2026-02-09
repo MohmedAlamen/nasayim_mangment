@@ -38,7 +38,6 @@ const customerSchema = z.object({
   address: z.string().min(5, 'العنوان مطلوب'),
   status: z.string().default('active'),
   notes: z.string().optional(),
-  attachments: z.array(z.string()).default([]),
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -64,7 +63,6 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
       address: customer?.address || '',
       status: customer?.status || 'active',
       notes: customer?.notes || '',
-      attachments: (customer?.attachments as string[]) || [],
     },
   });
 
@@ -78,7 +76,6 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         address: customer.address,
         status: customer.status || 'active',
         notes: customer.notes || '',
-        attachments: (customer.attachments as string[]) || [],
       });
     } else {
       form.reset({
@@ -89,7 +86,6 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         address: '',
         status: 'active',
         notes: '',
-        attachments: [],
       });
     }
   }, [customer, form]);
@@ -104,7 +100,6 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         address: values.address,
         status: values.status,
         notes: values.notes || null,
-        attachments: values.attachments,
       };
       
       if (customer) {
