@@ -8,7 +8,7 @@ export type InvoiceInsert = TablesInsert<'invoices'>;
 export type InvoiceUpdate = TablesUpdate<'invoices'>;
 
 export interface InvoiceWithRelations extends Invoice {
-  customers?: { name: string; phone: string; address: string } | null;
+  customers?: { name: string; phone: string; address: string; city?: string } | null;
   appointments?: { 
     scheduled_date: string; 
     scheduled_time: string;
@@ -24,7 +24,7 @@ export const useInvoices = () => {
         .from('invoices')
         .select(`
           *,
-          customers(name, phone, address),
+          customers(name, phone, address, city),
           appointments(
             scheduled_date, 
             scheduled_time,
@@ -46,7 +46,7 @@ export const useInvoice = (id: string) => {
         .from('invoices')
         .select(`
           *,
-          customers(name, phone, address),
+          customers(name, phone, address, city),
           appointments(
             scheduled_date, 
             scheduled_time,
