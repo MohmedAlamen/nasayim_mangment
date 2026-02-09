@@ -37,7 +37,7 @@ const customerSchema = z.object({
   city: z.string().min(2, 'المدينة مطلوبة'),
   address: z.string().min(5, 'العنوان مطلوب'),
   status: z.string().default('active'),
-  notes: z.string().optional(),
+  {/*notes: z.string().optional(),*/} 
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -62,7 +62,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
       city: customer?.city || '',
       address: customer?.address || '',
       status: customer?.status || 'active',
-      notes: customer?.notes || '',
+      {/*notes: customer?.notes || '',*/} 
     },
   });
 
@@ -75,7 +75,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         city: customer.city,
         address: customer.address,
         status: customer.status || 'active',
-        notes: customer.notes || '',
+        {/*notes: customer.notes || '',*/} 
       });
     } else {
       form.reset({
@@ -85,7 +85,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         city: '',
         address: '',
         status: 'active',
-        notes: '',
+        {/*notes: '',*/} 
       });
     }
   }, [customer, form]);
@@ -99,7 +99,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
         city: values.city,
         address: values.address,
         status: values.status,
-        notes: values.notes || null,
+        {/*notes: values.notes || null,*/} 
       };
       
       if (customer) {
@@ -213,7 +213,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
                 </FormItem>
               )}
             />
-            <FormField
+            {/*<FormField
               control={form.control}
               name="notes"
               render={({ field }) => (
@@ -225,7 +225,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            />*/} 
             <div className="flex gap-3 pt-4">
               <Button type="submit" className="flex-1" disabled={isLoading}>
                 {isLoading ? (dir === 'rtl' ? 'جاري الحفظ...' : 'Saving...') : (dir === 'rtl' ? 'حفظ' : 'Save')}
