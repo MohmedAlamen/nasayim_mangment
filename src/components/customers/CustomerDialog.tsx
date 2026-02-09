@@ -226,24 +226,6 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({ open, onOpenChange, cus
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="attachments"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dir === 'rtl' ? 'المرفقات' : 'Attachments'}</FormLabel>
-                  <FormControl>
-                    <FileUpload
-                      folder="customers"
-                      value={field.value}
-                      onChange={field.onChange}
-                      maxFiles={5}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <div className="flex gap-3 pt-4">
               <Button type="submit" className="flex-1" disabled={isLoading}>
                 {isLoading ? (dir === 'rtl' ? 'جاري الحفظ...' : 'Saving...') : (dir === 'rtl' ? 'حفظ' : 'Save')}
