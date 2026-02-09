@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchUserData = async (userId: string) => {
+  const fetchUserData = async (userId: string, userEmail?: string) => {
     try {
       // Fetch profile
       const { data: profileData, error: profileError } = await supabase
@@ -64,6 +64,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else if (roleData) {
         setRole(roleData.role as AppRole);
       }
+
+      // Auto-link employee by email if not already linked
+      if (userEmail) {
+        const { data: employeeData } = await supabase
+          .from('employees')
+          .select('id, user_id')
+          .eq('email', userEmail)
+          .maybeSingle();
+
+        if (employeeData && !employeeData.user_id) {
+          // Link employee to this user account
+          await supabase
+            .from('employees')
+            .update({ user_id: userId })
+            .eq('id', employeeData.id);
+          console.log('Employee linked to user account:', employeeData.id);
+        }
+      }
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
@@ -78,7 +96,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         if (session?.user) {
           // Use setTimeout to avoid potential deadlocks
-          setTimeout(() => fetchUserData(session.user.id), 0);
+          setTimeout(() => fetchUserData(session.user.id, session.user.email), 0);
         } else {
           setProfile(null);
           setRole(null);
@@ -93,7 +111,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        fetchUserData(session.user.id);
+        fetchUserData(session.user.id, session.user.email);
       }
       setLoading(false);
     });

@@ -1,9 +1,9 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Printer, CheckCircle, Clock } from 'lucide-react';
+import { Printer, CheckCircle, Clock, Building2, Phone, MapPin, Calendar, FileText, Hash, Download } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InvoiceWithRelations } from '@/hooks/useInvoices';
 
@@ -35,343 +35,526 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
           <html dir="${dir}">
             <head>
               <title>${invoice?.invoice_number || 'Invoice'}</title>
-              <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+              <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
               <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body { 
                   font-family: 'Cairo', Arial, sans-serif; 
                   padding: 0; 
                   direction: ${dir}; 
-                  color: #1f2937; 
+                  color: #1a1a2e; 
                   background: white;
-                  font-size: 14px;
-                  line-height: 1.6;
+                  font-size: 13px;
+                  line-height: 1.7;
                 }
                 .invoice-wrapper {
                   max-width: 800px;
                   margin: 0 auto;
-                  padding: 40px;
+                  padding: 0;
+                  background: white;
                 }
+                
+                /* Premium Header */
                 .header {
+                  background: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #115e59 100%);
+                  color: white;
+                  padding: 35px 40px;
+                  position: relative;
+                  overflow: hidden;
+                }
+                .header::before {
+                  content: '';
+                  position: absolute;
+                  top: -50%;
+                  ${dir === 'rtl' ? 'left' : 'right'}: -20%;
+                  width: 60%;
+                  height: 200%;
+                  background: rgba(255,255,255,0.05);
+                  transform: rotate(25deg);
+                }
+                .header-content {
                   display: flex;
                   justify-content: space-between;
-                  align-items: flex-start;
-                  margin-bottom: 40px;
-                  padding-bottom: 30px;
-                  border-bottom: 3px solid #059669;
+                  align-items: center;
+                  position: relative;
+                  z-index: 1;
                 }
-                .company-section h1 {
-                  font-size: 32px;
-                  font-weight: 700;
-                  color: #059669;
-                  margin-bottom: 8px;
+                .company-info h1 {
+                  font-size: 28px;
+                  font-weight: 800;
+                  margin-bottom: 6px;
+                  letter-spacing: -0.5px;
                 }
-                .company-section p {
-                  color: #6b7280;
+                .company-info p {
+                  opacity: 0.9;
                   font-size: 13px;
-                  max-width: 280px;
-                }
-                .invoice-title-section {
-                  text-align: ${dir === 'rtl' ? 'left' : 'right'};
+                  font-weight: 400;
                 }
                 .invoice-badge {
-                  display: inline-block;
-                  padding: 8px 20px;
-                  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                  color: white;
-                  font-size: 20px;
-                  font-weight: 700;
-                  border-radius: 8px;
-                  margin-bottom: 12px;
+                  text-align: ${dir === 'rtl' ? 'left' : 'right'};
                 }
-                .invoice-number {
-                  font-size: 24px;
-                  font-weight: 700;
-                  color: #1f2937;
-                  margin-bottom: 5px;
-                }
-                .invoice-date {
-                  color: #6b7280;
-                  font-size: 13px;
-                }
-                .logo-img {
-                  height: 70px;
-                  width: auto;
-                  object-fit: contain;
-                }
-                .info-grid {
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 30px;
-                  margin-bottom: 40px;
-                }
-                .info-box {
-                  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-                  padding: 25px;
-                  border-radius: 16px;
-                  border: 1px solid #bbf7d0;
-                }
-                .info-box h3 {
-                  font-size: 12px;
+                .invoice-label {
+                  font-size: 11px;
                   text-transform: uppercase;
-                  letter-spacing: 1px;
-                  color: #059669;
-                  margin-bottom: 15px;
-                  font-weight: 700;
+                  letter-spacing: 3px;
+                  opacity: 0.8;
+                  margin-bottom: 4px;
                 }
-                .info-row {
+                .invoice-number-display {
+                  font-size: 26px;
+                  font-weight: 800;
+                  letter-spacing: 1px;
+                }
+                
+                /* Body Content */
+                .body-content {
+                  padding: 35px 40px;
+                }
+                
+                /* Meta Row */
+                .meta-row {
                   display: flex;
                   justify-content: space-between;
-                  padding: 8px 0;
-                  border-bottom: 1px dashed #a7f3d0;
+                  gap: 30px;
+                  margin-bottom: 35px;
+                  padding-bottom: 25px;
+                  border-bottom: 2px solid #f1f5f9;
                 }
-                .info-row:last-child {
-                  border-bottom: none;
+                .meta-item {
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
                 }
-                .info-label {
-                  color: #6b7280;
-                  font-size: 13px;
+                .meta-icon {
+                  width: 36px;
+                  height: 36px;
+                  background: #f0fdfa;
+                  border-radius: 10px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #0d9488;
                 }
-                .info-value {
+                .meta-text span {
+                  display: block;
+                  font-size: 11px;
+                  color: #94a3b8;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                }
+                .meta-text strong {
+                  font-size: 14px;
+                  color: #1e293b;
                   font-weight: 600;
-                  color: #1f2937;
-                  font-size: 13px;
                 }
                 .status-badge {
-                  display: inline-block;
-                  padding: 4px 12px;
-                  border-radius: 20px;
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 6px;
+                  padding: 6px 14px;
+                  border-radius: 30px;
                   font-size: 12px;
                   font-weight: 600;
                 }
                 .status-paid {
-                  background: #dcfce7;
-                  color: #166534;
+                  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+                  color: #15803d;
                 }
                 .status-pending {
-                  background: #fef3c7;
-                  color: #92400e;
+                  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                  color: #b45309;
+                }
+                
+                /* Two Column Layout */
+                .two-columns {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 30px;
+                  margin-bottom: 35px;
+                }
+                .info-card {
+                  background: #fafafa;
+                  border-radius: 16px;
+                  padding: 24px;
+                  border: 1px solid #f1f5f9;
+                }
+                .info-card-header {
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  margin-bottom: 18px;
+                  padding-bottom: 12px;
+                  border-bottom: 1px dashed #e2e8f0;
+                }
+                .info-card-icon {
+                  width: 32px;
+                  height: 32px;
+                  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+                  border-radius: 8px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: white;
+                  font-size: 14px;
+                }
+                .info-card-title {
+                  font-size: 11px;
+                  text-transform: uppercase;
+                  letter-spacing: 1.5px;
+                  color: #64748b;
+                  font-weight: 600;
+                }
+                .info-row {
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  padding: 8px 0;
+                }
+                .info-row-icon {
+                  color: #0d9488;
+                  width: 16px;
+                  flex-shrink: 0;
+                }
+                .info-row-label {
+                  color: #94a3b8;
+                  font-size: 12px;
+                  min-width: 70px;
+                }
+                .info-row-value {
+                  color: #1e293b;
+                  font-weight: 600;
+                  font-size: 13px;
+                }
+                
+                /* Items Table */
+                .items-section {
+                  margin-bottom: 30px;
+                }
+                .section-title {
+                  font-size: 11px;
+                  text-transform: uppercase;
+                  letter-spacing: 1.5px;
+                  color: #64748b;
+                  font-weight: 600;
+                  margin-bottom: 15px;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                }
+                .section-title::after {
+                  content: '';
+                  flex: 1;
+                  height: 1px;
+                  background: #e2e8f0;
                 }
                 .items-table {
                   width: 100%;
                   border-collapse: separate;
                   border-spacing: 0;
-                  margin-bottom: 30px;
-                  border-radius: 12px;
+                  border-radius: 16px;
                   overflow: hidden;
-                  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                  border: 1px solid #e2e8f0;
+                }
+                .items-table thead tr {
+                  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
                 }
                 .items-table th {
-                  background: linear-gradient(135deg, #059669 0%, #047857 100%);
                   color: white;
                   padding: 16px 20px;
                   text-align: ${dir === 'rtl' ? 'right' : 'left'};
                   font-weight: 600;
-                  font-size: 13px;
+                  font-size: 12px;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
                   -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
                 }
                 .items-table th:last-child {
                   text-align: ${dir === 'rtl' ? 'left' : 'right'};
                 }
                 .items-table td {
-                  padding: 18px 20px;
-                  border-bottom: 1px solid #e5e7eb;
-                  font-size: 14px;
+                  padding: 20px;
+                  background: white;
+                  font-size: 13px;
+                  border-bottom: 1px solid #f1f5f9;
                 }
                 .items-table tr:last-child td {
                   border-bottom: none;
                 }
-                .items-table tr:nth-child(even) {
-                  background: #f9fafb;
-                  -webkit-print-color-adjust: exact;
-                }
                 .item-name {
-                  font-weight: 600;
-                  color: #1f2937;
+                  font-weight: 700;
+                  color: #1e293b;
+                  font-size: 14px;
+                  margin-bottom: 4px;
                 }
-                .item-description {
-                  font-size: 12px;
-                  color: #6b7280;
-                  margin-top: 4px;
+                .item-details {
+                  font-size: 11px;
+                  color: #94a3b8;
                 }
                 .amount-cell {
                   text-align: ${dir === 'rtl' ? 'left' : 'right'};
-                  font-weight: 700;
-                  font-size: 15px;
+                  font-weight: 800;
+                  font-size: 16px;
+                  color: #0d9488;
                 }
-                .totals-section {
+                
+                /* Totals Section */
+                .totals-wrapper {
                   display: flex;
-                  flex-direction: column;
-                  align-items: ${dir === 'rtl' ? 'flex-start' : 'flex-end'};
+                  justify-content: ${dir === 'rtl' ? 'flex-start' : 'flex-end'};
                   margin-bottom: 30px;
                 }
-                .totals-box {
-                  width: 300px;
-                  background: #f9fafb;
-                  border-radius: 12px;
-                  padding: 20px;
-                  border: 1px solid #e5e7eb;
+                .totals-card {
+                  width: 320px;
+                  background: #fafafa;
+                  border-radius: 16px;
+                  overflow: hidden;
+                  border: 1px solid #e2e8f0;
                 }
-                .total-row {
+                .totals-row {
                   display: flex;
                   justify-content: space-between;
-                  padding: 10px 0;
-                  border-bottom: 1px dashed #e5e7eb;
+                  padding: 14px 20px;
+                  border-bottom: 1px dashed #e2e8f0;
                 }
-                .total-row:last-child {
+                .totals-row:last-of-type {
                   border-bottom: none;
                 }
-                .grand-total {
-                  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                  color: white;
-                  margin: 15px -20px -20px;
-                  padding: 20px;
-                  border-radius: 0 0 12px 12px;
-                  -webkit-print-color-adjust: exact;
-                }
-                .grand-total .total-row {
-                  border: none;
-                  padding: 0;
-                }
-                .grand-total span {
-                  font-size: 18px;
-                  font-weight: 700;
-                }
-                .notes-section {
-                  background: #fffbeb;
-                  border: 1px solid #fde68a;
-                  border-radius: 12px;
-                  padding: 20px;
-                  margin-bottom: 40px;
-                }
-                .notes-section h4 {
-                  color: #92400e;
-                  font-weight: 600;
-                  margin-bottom: 10px;
-                  font-size: 14px;
-                }
-                .notes-section p {
-                  color: #78350f;
+                .totals-label {
+                  color: #64748b;
                   font-size: 13px;
-                  line-height: 1.7;
                 }
-                .footer {
-                  text-align: center;
-                  padding-top: 30px;
-                  border-top: 2px solid #e5e7eb;
-                  color: #9ca3af;
+                .totals-value {
+                  font-weight: 600;
+                  color: #1e293b;
+                }
+                .grand-total-row {
+                  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+                  padding: 20px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
+                .grand-total-label {
+                  color: rgba(255,255,255,0.9);
+                  font-size: 14px;
+                  font-weight: 600;
+                }
+                .grand-total-value {
+                  color: white;
+                  font-size: 24px;
+                  font-weight: 800;
+                }
+                
+                /* Notes */
+                .notes-section {
+                  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+                  border: 1px solid #fde68a;
+                  border-radius: 16px;
+                  padding: 20px;
+                  margin-bottom: 30px;
+                }
+                .notes-title {
+                  color: #b45309;
+                  font-weight: 700;
+                  margin-bottom: 8px;
+                  font-size: 13px;
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                }
+                .notes-content {
+                  color: #92400e;
                   font-size: 12px;
+                  line-height: 1.8;
+                }
+                
+                /* Footer */
+                .footer {
+                  background: #f8fafc;
+                  padding: 30px 40px;
+                  text-align: center;
+                  border-top: 2px solid #e2e8f0;
                 }
                 .footer-thanks {
-                  color: #059669;
-                  font-weight: 600;
-                  font-size: 16px;
+                  color: #0d9488;
+                  font-size: 18px;
+                  font-weight: 700;
                   margin-bottom: 8px;
                 }
+                .footer-info {
+                  color: #94a3b8;
+                  font-size: 12px;
+                }
+                .footer-divider {
+                  width: 60px;
+                  height: 3px;
+                  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+                  margin: 15px auto;
+                  border-radius: 2px;
+                }
+                
                 @media print {
                   body { padding: 0; }
-                  .invoice-wrapper { padding: 20px; }
-                  @page { margin: 1cm; }
+                  .invoice-wrapper { padding: 0; }
+                  @page { margin: 0.5cm; size: A4; }
                 }
               </style>
             </head>
             <body>
               <div class="invoice-wrapper">
+                <!-- Header -->
                 <div class="header">
-                  <div class="company-section">
-                    <h1>${t('appName')}</h1>
-                    <p>${t('companyDescription')}</p>
-                  </div>
-                  <div class="invoice-title-section">
-                    <div class="invoice-badge">${dir === 'rtl' ? 'فاتورة' : 'INVOICE'}</div>
-                    <div class="invoice-number">${invoice?.invoice_number}</div>
-                    <div class="invoice-date">${format(new Date(invoice?.created_at || new Date()), 'PPP', { locale: dir === 'rtl' ? ar : undefined })}</div>
-                  </div>
-                </div>
-
-                <div class="info-grid">
-                  <div class="info-box">
-                    <h3>${dir === 'rtl' ? 'بيانات العميل' : 'BILL TO'}</h3>
-                    <div class="info-row">
-                      <span class="info-label">${dir === 'rtl' ? 'الاسم:' : 'Name:'}</span>
-                      <span class="info-value">${invoice?.customers?.name || '-'}</span>
+                  <div class="header-content">
+                    <div class="company-info">
+                      <h1>${t('appName')}</h1>
+                      <p>${t('companyDescription')}</p>
                     </div>
-                    <div class="info-row">
-                      <span class="info-label">${dir === 'rtl' ? 'الهاتف:' : 'Phone:'}</span>
-                      <span class="info-value" dir="ltr">${invoice?.customers?.phone || '-'}</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">${dir === 'rtl' ? 'العنوان:' : 'Address:'}</span>
-                      <span class="info-value">${invoice?.customers?.address || '-'}</span>
-                    </div>
-                  </div>
-                  <div class="info-box">
-                    <h3>${dir === 'rtl' ? 'تفاصيل الفاتورة' : 'INVOICE DETAILS'}</h3>
-                    <div class="info-row">
-                      <span class="info-label">${dir === 'rtl' ? 'رقم الفاتورة:' : 'Invoice No:'}</span>
-                      <span class="info-value">${invoice?.invoice_number}</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">${dir === 'rtl' ? 'التاريخ:' : 'Date:'}</span>
-                      <span class="info-value">${format(new Date(invoice?.created_at || new Date()), 'dd/MM/yyyy')}</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">${dir === 'rtl' ? 'الحالة:' : 'Status:'}</span>
-                      <span class="status-badge ${invoice?.status === 'paid' ? 'status-paid' : 'status-pending'}">${invoice?.status === 'paid' ? (dir === 'rtl' ? '✓ مدفوعة' : '✓ Paid') : (dir === 'rtl' ? '⏳ غير مدفوعة' : '⏳ Unpaid')}</span>
+                    <div class="invoice-badge">
+                      <div class="invoice-label">${dir === 'rtl' ? 'فاتورة رقم' : 'INVOICE NO.'}</div>
+                      <div class="invoice-number-display">${invoice?.invoice_number}</div>
                     </div>
                   </div>
                 </div>
-
-                <table class="items-table">
-                  <thead>
-                    <tr>
-                      <th style="width: 50px;">#</th>
-                      <th>${dir === 'rtl' ? 'الوصف' : 'Description'}</th>
-                      <th style="width: 120px;">${dir === 'rtl' ? 'التاريخ' : 'Date'}</th>
-                      <th style="width: 150px;">${dir === 'rtl' ? 'المبلغ' : 'Amount'}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>
-                        <div class="item-name">${dir === 'rtl' ? (invoice?.appointments?.services?.name_ar || 'خدمة') : (invoice?.appointments?.services?.name_en || 'Service')}</div>
-                        ${invoice?.appointments?.scheduled_date ? `<div class="item-description">${dir === 'rtl' ? 'موعد الخدمة:' : 'Service date:'} ${invoice?.appointments?.scheduled_date}</div>` : ''}
-                      </td>
-                      <td>${invoice?.appointments?.scheduled_date || format(new Date(invoice?.created_at || new Date()), 'dd/MM/yyyy')}</td>
-                      <td class="amount-cell">${Number(invoice?.amount).toLocaleString()} ${t('currency')}</td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <div class="totals-section">
-                  <div class="totals-box">
-                    <div class="total-row">
-                      <span>${dir === 'rtl' ? 'المجموع الفرعي' : 'Subtotal'}</span>
-                      <span>${Number(invoice?.amount).toLocaleString()} ${t('currency')}</span>
+                
+                <!-- Body -->
+                <div class="body-content">
+                  <!-- Meta Row -->
+                  <div class="meta-row">
+                    <div class="meta-item">
+                      <div class="meta-icon">📅</div>
+                      <div class="meta-text">
+                        <span>${dir === 'rtl' ? 'تاريخ الإصدار' : 'Issue Date'}</span>
+                        <strong>${format(new Date(invoice?.created_at || new Date()), 'dd/MM/yyyy')}</strong>
+                      </div>
                     </div>
-                    <div class="total-row">
-                      <span>${dir === 'rtl' ? 'ضريبة القيمة المضافة (0%)' : 'VAT (0%)'}</span>
-                      <span>0 ${t('currency')}</span>
+                    <div class="meta-item">
+                      <div class="meta-icon">📆</div>
+                      <div class="meta-text">
+                        <span>${dir === 'rtl' ? 'تاريخ الاستحقاق' : 'Due Date'}</span>
+                        <strong>${invoice?.due_date ? format(new Date(invoice.due_date), 'dd/MM/yyyy') : (dir === 'rtl' ? 'عند الاستلام' : 'On Receipt')}</strong>
+                      </div>
                     </div>
-                    <div class="grand-total">
-                      <div class="total-row">
-                        <span>${dir === 'rtl' ? 'الإجمالي' : 'TOTAL'}</span>
-                        <span>${Number(invoice?.amount).toLocaleString()} ${t('currency')}</span>
+                    <div class="meta-item">
+                      <span class="status-badge ${invoice?.status === 'paid' ? 'status-paid' : 'status-pending'}">
+                        ${invoice?.status === 'paid' ? '✓' : '⏳'}
+                        ${invoice?.status === 'paid' ? (dir === 'rtl' ? 'مدفوعة' : 'PAID') : (dir === 'rtl' ? 'غير مدفوعة' : 'UNPAID')}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- Two Columns -->
+                  <div class="two-columns">
+                    <div class="info-card">
+                      <div class="info-card-header">
+                        <div class="info-card-icon">👤</div>
+                        <div class="info-card-title">${dir === 'rtl' ? 'فاتورة إلى' : 'BILL TO'}</div>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-row-label">${dir === 'rtl' ? 'الاسم:' : 'Name:'}</span>
+                        <span class="info-row-value">${invoice?.customers?.name || '-'}</span>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-row-label">${dir === 'rtl' ? 'الهاتف:' : 'Phone:'}</span>
+                        <span class="info-row-value" dir="ltr">${invoice?.customers?.phone || '-'}</span>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-row-label">${dir === 'rtl' ? 'المدينة:' : 'City:'}</span>
+                        <span class="info-row-value">${invoice?.customers?.city || '-'}</span>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-row-label">${dir === 'rtl' ? 'العنوان:' : 'Address:'}</span>
+                        <span class="info-row-value">${invoice?.customers?.address || '-'}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="info-card">
+                      <div class="info-card-header">
+                        <div class="info-card-icon">🏢</div>
+                        <div class="info-card-title">${dir === 'rtl' ? 'فاتورة من' : 'BILL FROM'}</div>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-row-label">${dir === 'rtl' ? 'الشركة:' : 'Company:'}</span>
+                        <span class="info-row-value">${t('appName')}</span>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-row-label">${dir === 'rtl' ? 'النشاط:' : 'Business:'}</span>
+                        <span class="info-row-value">${t('companyDescription')}</span>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-row-label">${dir === 'rtl' ? 'رقم الفاتورة:' : 'Invoice #:'}</span>
+                        <span class="info-row-value">${invoice?.invoice_number}</span>
                       </div>
                     </div>
                   </div>
+                  
+                  <!-- Items -->
+                  <div class="items-section">
+                    <div class="section-title">${dir === 'rtl' ? 'تفاصيل الخدمات' : 'SERVICE DETAILS'}</div>
+                    <table class="items-table">
+                      <thead>
+                        <tr>
+                          <th style="width: 50px;">#</th>
+                          <th>${dir === 'rtl' ? 'الخدمة' : 'Service'}</th>
+                          <th style="width: 130px;">${dir === 'rtl' ? 'التاريخ' : 'Date'}</th>
+                          <th style="width: 140px;">${dir === 'rtl' ? 'المبلغ' : 'Amount'}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style="text-align: center; color: #94a3b8;">01</td>
+                          <td>
+                            <div class="item-name">${dir === 'rtl' ? (invoice?.appointments?.services?.name_ar || 'خدمة تنظيف') : (invoice?.appointments?.services?.name_en || 'Cleaning Service')}</div>
+                            <div class="item-details">
+                              ${invoice?.appointments?.scheduled_date ? `${dir === 'rtl' ? 'تاريخ الخدمة:' : 'Service date:'} ${invoice?.appointments?.scheduled_date}` : ''}
+                            </div>
+                          </td>
+                          <td style="color: #64748b;">${invoice?.appointments?.scheduled_date || format(new Date(invoice?.created_at || new Date()), 'dd/MM/yyyy')}</td>
+                          <td class="amount-cell">${Number(invoice?.amount).toLocaleString()} ${t('currency')}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  <!-- Totals -->
+                  <div class="totals-wrapper">
+                    <div class="totals-card">
+                      <div class="totals-row">
+                        <span class="totals-label">${dir === 'rtl' ? 'المجموع الفرعي' : 'Subtotal'}</span>
+                        <span class="totals-value">${Number(invoice?.amount).toLocaleString()} ${t('currency')}</span>
+                      </div>
+                      <div class="totals-row">
+                        <span class="totals-label">${dir === 'rtl' ? 'ضريبة القيمة المضافة (0%)' : 'VAT (0%)'}</span>
+                        <span class="totals-value">0 ${t('currency')}</span>
+                      </div>
+                      <div class="totals-row">
+                        <span class="totals-label">${dir === 'rtl' ? 'الخصم' : 'Discount'}</span>
+                        <span class="totals-value">0 ${t('currency')}</span>
+                      </div>
+                      <div class="grand-total-row">
+                        <span class="grand-total-label">${dir === 'rtl' ? 'الإجمالي المستحق' : 'TOTAL DUE'}</span>
+                        <span class="grand-total-value">${Number(invoice?.amount).toLocaleString()} ${t('currency')}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  ${invoice?.notes ? `
+                  <div class="notes-section">
+                    <div class="notes-title">📝 ${dir === 'rtl' ? 'ملاحظات' : 'Notes'}</div>
+                    <div class="notes-content">${invoice.notes}</div>
+                  </div>` : ''}
                 </div>
-
-                ${invoice?.notes ? `
-                <div class="notes-section">
-                  <h4>📝 ${dir === 'rtl' ? 'ملاحظات:' : 'Notes:'}</h4>
-                  <p>${invoice.notes}</p>
-                </div>` : ''}
-
+                
+                <!-- Footer -->
                 <div class="footer">
-                  <div class="footer-thanks">${dir === 'rtl' ? '🙏 شكراً لتعاملكم معنا' : '🙏 Thank you for your business'}</div>
-                  <p>${t('appName')} &copy; ${new Date().getFullYear()} - ${dir === 'rtl' ? 'جميع الحقوق محفوظة' : 'All rights reserved'}</p>
+                  <div class="footer-thanks">${dir === 'rtl' ? '🙏 شكراً لثقتكم بنا' : '🙏 Thank you for your business'}</div>
+                  <div class="footer-divider"></div>
+                  <div class="footer-info">
+                    ${t('appName')} &copy; ${new Date().getFullYear()} - ${dir === 'rtl' ? 'جميع الحقوق محفوظة' : 'All rights reserved'}
+                  </div>
                 </div>
               </div>
               <script>
@@ -398,153 +581,202 @@ const InvoicePrint: React.FC<InvoicePrintProps> = ({ open, onOpenChange, invoice
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0" dir={dir}>
         <div className="sticky top-0 bg-background/95 backdrop-blur z-10 p-4 border-b flex items-center justify-between">
-          <DialogTitle>{dir === 'rtl' ? 'معاينة الفاتورة' : 'Invoice Preview'}</DialogTitle>
-          <Button size="sm" onClick={handlePrint}>
-            <Printer className="w-4 h-4 me-2" />
-            {dir === 'rtl' ? 'طباعة' : 'Print'}
-          </Button>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-primary" />
+            {dir === 'rtl' ? 'معاينة الفاتورة' : 'Invoice Preview'}
+          </DialogTitle>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handlePrint} className="gap-2">
+              <Printer className="w-4 h-4" />
+              {dir === 'rtl' ? 'طباعة' : 'Print'}
+            </Button>
+          </div>
         </div>
         
-        <div className="p-6 md:p-8 bg-muted/30">
-          <div id="invoice-print-content" className="bg-white p-6 md:p-10 rounded-2xl shadow-xl max-w-[800px] mx-auto border">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start gap-6 border-b-4 border-primary pb-8 mb-8">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">{t('appName')}</h1>
-                <p className="text-muted-foreground text-sm max-w-[280px]">{t('companyDescription')}</p>
-              </div>
-              <div className={`text-${dir === 'rtl' ? 'start' : 'end'}`}>
-                <div className="inline-block px-6 py-2 bg-gradient-to-r from-primary to-primary/80 text-white text-xl font-bold rounded-lg mb-3">
-                  {dir === 'rtl' ? 'فاتورة' : 'INVOICE'}
+        <div className="p-4 md:p-6 bg-muted/30">
+          <div id="invoice-print-content" className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-[800px] mx-auto border">
+            {/* Premium Header */}
+            <div className="bg-gradient-to-r from-teal-600 via-teal-700 to-teal-800 text-white p-8 relative overflow-hidden">
+              <div className="absolute top-0 end-0 w-1/2 h-full bg-white/5 transform skew-x-12 translate-x-20"></div>
+              <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">{t('appName')}</h1>
+                  <p className="opacity-90 text-sm mt-1">{t('companyDescription')}</p>
                 </div>
-                <p className="text-2xl font-bold">{invoice.invoice_number}</p>
-                <p className="text-muted-foreground text-sm">
-                  {format(new Date(invoice.created_at), 'PPP', { locale: dir === 'rtl' ? ar : undefined })}
-                </p>
+                <div className={`text-${dir === 'rtl' ? 'start' : 'end'}`}>
+                  <p className="text-xs uppercase tracking-widest opacity-80 mb-1">
+                    {dir === 'rtl' ? 'فاتورة رقم' : 'INVOICE NO.'}
+                  </p>
+                  <p className="text-2xl md:text-3xl font-extrabold tracking-wide">{invoice.invoice_number}</p>
+                </div>
               </div>
             </div>
 
-            {/* Info Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-6 rounded-2xl border border-primary/20">
-                <h3 className="text-xs uppercase tracking-wider text-primary font-bold mb-4">
-                  {dir === 'rtl' ? 'بيانات العميل' : 'BILL TO'}
+            {/* Body Content */}
+            <div className="p-6 md:p-8">
+              {/* Meta Row */}
+              <div className="flex flex-wrap items-center gap-4 md:gap-8 pb-6 mb-6 border-b-2 border-muted">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-teal-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {dir === 'rtl' ? 'تاريخ الإصدار' : 'Issue Date'}
+                    </p>
+                    <p className="font-semibold">{format(new Date(invoice.created_at), 'dd/MM/yyyy')}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
+                    <Hash className="w-5 h-5 text-teal-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {dir === 'rtl' ? 'رقم الفاتورة' : 'Invoice #'}
+                    </p>
+                    <p className="font-semibold">{invoice.invoice_number}</p>
+                  </div>
+                </div>
+                <div className="ms-auto">
+                  <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
+                    invoice.status === 'paid' 
+                      ? 'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700' 
+                      : 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700'
+                  }`}>
+                    <StatusIcon className="w-4 h-4" />
+                    {invoice.status === 'paid' ? (dir === 'rtl' ? 'مدفوعة' : 'Paid') : (dir === 'rtl' ? 'غير مدفوعة' : 'Unpaid')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Two Column Info Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* Bill To */}
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200">
+                  <div className="flex items-center gap-3 mb-5 pb-4 border-b border-dashed border-slate-300">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center">
+                      <Building2 className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-xs uppercase tracking-widest text-slate-500 font-semibold">
+                      {dir === 'rtl' ? 'فاتورة إلى' : 'BILL TO'}
+                    </h3>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-lg font-bold text-slate-800">{invoice.customers?.name || '-'}</p>
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <Phone className="w-4 h-4 text-teal-600" />
+                      <span dir="ltr">{invoice.customers?.phone || '-'}</span>
+                    </div>
+                    <div className="flex items-start gap-2 text-slate-600">
+                      <MapPin className="w-4 h-4 text-teal-600 mt-0.5" />
+                      <span>{invoice.customers?.city}, {invoice.customers?.address || '-'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bill From */}
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200">
+                  <div className="flex items-center gap-3 mb-5 pb-4 border-b border-dashed border-slate-300">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-xs uppercase tracking-widest text-slate-500 font-semibold">
+                      {dir === 'rtl' ? 'فاتورة من' : 'BILL FROM'}
+                    </h3>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-lg font-bold text-slate-800">{t('appName')}</p>
+                    <p className="text-slate-600">{t('companyDescription')}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Items Table */}
+              <div className="mb-8">
+                <h3 className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-4 flex items-center gap-2">
+                  {dir === 'rtl' ? 'تفاصيل الخدمات' : 'SERVICE DETAILS'}
+                  <div className="flex-1 h-px bg-slate-200"></div>
                 </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{dir === 'rtl' ? 'الاسم:' : 'Name:'}</span>
-                    <span className="font-semibold">{invoice.customers?.name || '-'}</span>
+                <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-teal-600 to-teal-700 text-white">
+                        <th className="p-4 text-start font-semibold text-xs uppercase tracking-wide w-14">#</th>
+                        <th className="p-4 text-start font-semibold text-xs uppercase tracking-wide">{dir === 'rtl' ? 'الخدمة' : 'Service'}</th>
+                        <th className="p-4 text-start font-semibold text-xs uppercase tracking-wide w-28">{dir === 'rtl' ? 'التاريخ' : 'Date'}</th>
+                        <th className="p-4 text-end font-semibold text-xs uppercase tracking-wide w-36">{dir === 'rtl' ? 'المبلغ' : 'Amount'}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="bg-white">
+                        <td className="p-5 text-center text-slate-400 font-medium">01</td>
+                        <td className="p-5">
+                          <p className="font-bold text-slate-800 text-[15px]">
+                            {dir === 'rtl' ? (invoice.appointments?.services?.name_ar || 'خدمة تنظيف') : (invoice.appointments?.services?.name_en || 'Cleaning Service')}
+                          </p>
+                          {invoice.appointments?.scheduled_date && (
+                            <p className="text-xs text-slate-500 mt-1">
+                              {dir === 'rtl' ? 'تاريخ الخدمة:' : 'Service date:'} {invoice.appointments.scheduled_date}
+                            </p>
+                          )}
+                        </td>
+                        <td className="p-5 text-slate-500">
+                          {invoice.appointments?.scheduled_date || format(new Date(invoice.created_at), 'dd/MM/yyyy')}
+                        </td>
+                        <td className="p-5 text-end font-extrabold text-lg text-teal-600">
+                          {Number(invoice.amount).toLocaleString()} {t('currency')}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Totals */}
+              <div className={`flex ${dir === 'rtl' ? 'justify-start' : 'justify-end'} mb-8`}>
+                <div className="w-full sm:w-80 bg-slate-50 rounded-2xl overflow-hidden border border-slate-200">
+                  <div className="p-5 space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">{dir === 'rtl' ? 'المجموع الفرعي' : 'Subtotal'}</span>
+                      <span className="font-semibold">{Number(invoice.amount).toLocaleString()} {t('currency')}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">{dir === 'rtl' ? 'ضريبة (0%)' : 'Tax (0%)'}</span>
+                      <span className="font-semibold">0 {t('currency')}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">{dir === 'rtl' ? 'الخصم' : 'Discount'}</span>
+                      <span className="font-semibold">0 {t('currency')}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{dir === 'rtl' ? 'الهاتف:' : 'Phone:'}</span>
-                    <span className="font-semibold" dir="ltr">{invoice.customers?.phone || '-'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{dir === 'rtl' ? 'العنوان:' : 'Address:'}</span>
-                    <span className="font-semibold text-end">{invoice.customers?.address || '-'}</span>
+                  <div className="bg-gradient-to-r from-teal-600 to-teal-700 text-white p-5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold">{dir === 'rtl' ? 'الإجمالي المستحق' : 'TOTAL DUE'}</span>
+                      <span className="text-2xl font-extrabold">{Number(invoice.amount).toLocaleString()} {t('currency')}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-6 rounded-2xl border border-primary/20">
-                <h3 className="text-xs uppercase tracking-wider text-primary font-bold mb-4">
-                  {dir === 'rtl' ? 'تفاصيل الفاتورة' : 'INVOICE DETAILS'}
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{dir === 'rtl' ? 'رقم الفاتورة:' : 'Invoice No:'}</span>
-                    <span className="font-semibold">{invoice.invoice_number}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{dir === 'rtl' ? 'التاريخ:' : 'Date:'}</span>
-                    <span className="font-semibold">{format(new Date(invoice.created_at), 'dd/MM/yyyy')}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">{dir === 'rtl' ? 'الحالة:' : 'Status:'}</span>
-                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
-                      invoice.status === 'paid' 
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                        : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                    }`}>
-                      <StatusIcon className="w-3 h-3" />
-                      {invoice.status === 'paid' ? (dir === 'rtl' ? 'مدفوعة' : 'Paid') : (dir === 'rtl' ? 'غير مدفوعة' : 'Unpaid')}
-                    </span>
-                  </div>
+              {/* Notes */}
+              {invoice.notes && (
+                <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-2xl p-5 mb-6">
+                  <h4 className="font-bold text-amber-800 mb-2 flex items-center gap-2 text-sm">
+                    📝 {dir === 'rtl' ? 'ملاحظات' : 'Notes'}
+                  </h4>
+                  <p className="text-amber-700 text-sm leading-relaxed">{invoice.notes}</p>
                 </div>
-              </div>
+              )}
             </div>
-
-            {/* Items Table */}
-            <div className="rounded-xl overflow-hidden border shadow-sm mb-8">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gradient-to-r from-primary to-primary/80 text-white">
-                    <th className="p-4 text-start font-semibold text-sm w-12">#</th>
-                    <th className="p-4 text-start font-semibold text-sm">{dir === 'rtl' ? 'الوصف' : 'Description'}</th>
-                    <th className="p-4 text-start font-semibold text-sm w-28">{dir === 'rtl' ? 'التاريخ' : 'Date'}</th>
-                    <th className="p-4 text-end font-semibold text-sm w-32">{dir === 'rtl' ? 'المبلغ' : 'Amount'}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-5">1</td>
-                    <td className="p-5">
-                      <p className="font-semibold">
-                        {dir === 'rtl' ? (invoice.appointments?.services?.name_ar || 'خدمة') : (invoice.appointments?.services?.name_en || 'Service')}
-                      </p>
-                      {invoice.appointments?.scheduled_date && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {dir === 'rtl' ? 'موعد الخدمة:' : 'Service date:'} {invoice.appointments.scheduled_date}
-                        </p>
-                      )}
-                    </td>
-                    <td className="p-5 text-muted-foreground text-sm">
-                      {invoice.appointments?.scheduled_date || format(new Date(invoice.created_at), 'dd/MM/yyyy')}
-                    </td>
-                    <td className="p-5 text-end font-bold text-lg">{Number(invoice.amount).toLocaleString()} {t('currency')}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Totals */}
-            <div className={`flex ${dir === 'rtl' ? 'justify-start' : 'justify-end'} mb-8`}>
-              <div className="w-full sm:w-80 bg-muted/50 rounded-xl border overflow-hidden">
-                <div className="p-4 space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{dir === 'rtl' ? 'المجموع الفرعي' : 'Subtotal'}</span>
-                    <span>{Number(invoice.amount).toLocaleString()} {t('currency')}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{dir === 'rtl' ? 'ضريبة (0%)' : 'Tax (0%)'}</span>
-                    <span>0 {t('currency')}</span>
-                  </div>
-                </div>
-                <div className="bg-gradient-to-r from-primary to-primary/80 text-white p-4">
-                  <div className="flex justify-between">
-                    <span className="text-lg font-bold">{dir === 'rtl' ? 'الإجمالي' : 'TOTAL'}</span>
-                    <span className="text-xl font-bold">{Number(invoice.amount).toLocaleString()} {t('currency')}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Notes */}
-            {invoice.notes && (
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5 mb-8">
-                <h4 className="font-semibold text-amber-800 dark:text-amber-400 mb-2 flex items-center gap-2">
-                  📝 {dir === 'rtl' ? 'ملاحظات:' : 'Notes:'}
-                </h4>
-                <p className="text-amber-700 dark:text-amber-300 text-sm leading-relaxed">{invoice.notes}</p>
-              </div>
-            )}
 
             {/* Footer */}
-            <div className="text-center pt-8 border-t">
-              <p className="text-primary font-semibold text-lg mb-2">
-                🙏 {dir === 'rtl' ? 'شكراً لتعاملكم معنا' : 'Thank you for your business'}
+            <div className="bg-slate-50 text-center py-8 px-6 border-t-2 border-slate-100">
+              <p className="text-teal-600 font-bold text-lg mb-2">
+                🙏 {dir === 'rtl' ? 'شكراً لثقتكم بنا' : 'Thank you for your business'}
               </p>
-              <p className="text-muted-foreground text-sm">
+              <div className="w-16 h-1 bg-gradient-to-r from-teal-500 to-teal-600 mx-auto rounded-full mb-3"></div>
+              <p className="text-slate-400 text-sm">
                 {t('appName')} &copy; {new Date().getFullYear()} - {dir === 'rtl' ? 'جميع الحقوق محفوظة' : 'All rights reserved'}
               </p>
             </div>
